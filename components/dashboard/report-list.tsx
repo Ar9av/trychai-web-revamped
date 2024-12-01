@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/table"
 import { Skeleton } from "@/components/ui/skeleton"
 import { formatDistanceToNow } from "date-fns"
+import { useClerk } from "@clerk/nextjs"
 
 interface Report {
   id: number
@@ -22,6 +23,9 @@ interface ReportListProps {
 }
 
 export function ReportList({ reports, isLoading }: ReportListProps) {
+  const { session } = useClerk();
+  const userEmail = session?.user.emailAddresses[0].emailAddress;
+
   if (isLoading) {
     return <LoadingSkeleton />
   }

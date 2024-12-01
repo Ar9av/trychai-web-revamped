@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { NewsList } from "@/components/news/news-list"
 import { NewsHeader } from "@/components/news/news-header"
 import { Button } from "@/components/ui/button"
-
+import { useClerk } from "@clerk/nextjs"
 export default function NewsPage() {
   const [news, setNews] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -16,6 +16,9 @@ export default function NewsPage() {
   }, [page])
 
   const fetchNews = async () => {
+    const { session } = useClerk();
+    const userEmail = session?.user.emailAddresses[0].emailAddress;
+
     try {
       const response = await fetch(`/api/news?page=${page}`, { method: 'GET' })
       const data = await response.json()

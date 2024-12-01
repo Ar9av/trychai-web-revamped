@@ -6,8 +6,11 @@ import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { CreditCard, Gift } from "lucide-react"
+import { useClerk } from "@clerk/nextjs"
 
 export default function CreditsPage() {
+  const { session } = useClerk();
+  const userEmail = session?.user.emailAddresses[0].emailAddress;
   const [couponCode, setCouponCode] = useState("")
 
   const creditPackages = [

@@ -4,8 +4,11 @@ import { useEffect, useState } from "react"
 import { ReportList } from "@/components/dashboard/report-list"
 import { DashboardHeader } from "@/components/dashboard/header"
 import { ReportSearch } from "@/components/dashboard/report-search"
+import { useClerk } from "@clerk/nextjs"
 
 export default function DashboardPage() {
+  const { session } = useClerk();
+  const userEmail = session?.user.emailAddresses[0].emailAddress;
   const [reports, setReports] = useState([])
   const [filteredReports, setFilteredReports] = useState([])
   const [isLoading, setIsLoading] = useState(true)
