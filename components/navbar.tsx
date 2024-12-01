@@ -2,6 +2,10 @@
 
 import { ModeToggle } from "@/components/mode-toggle"
 import { Button } from "@/components/ui/button"
+import { UserButton } from "@clerk/nextjs"
+import { SignedIn } from "@clerk/nextjs"
+import { SignInButton } from "@clerk/nextjs"
+import { SignedOut } from "@clerk/nextjs"
 import { Brain } from "lucide-react"
 import Link from "next/link"
 
@@ -24,6 +28,12 @@ export function Navbar() {
             <Link href="/about">About</Link>
           </Button>
           <ModeToggle />
+          <SignedOut>
+            <SignInButton />
+          </SignedOut>
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
         </div>
       </nav>
     </header>

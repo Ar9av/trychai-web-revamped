@@ -4,7 +4,7 @@ import { Inter } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Navbar } from '@/components/navbar'
 import { Toaster } from '@/components/ui/toaster'
-
+import { ClerkProvider } from '@clerk/nextjs'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
@@ -20,6 +20,7 @@ export default function RootLayout({
   return (
       <html lang="en" suppressHydrationWarning>
         <body className={inter.className}>
+        <ClerkProvider>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -32,6 +33,7 @@ export default function RootLayout({
               <Toaster />
             </div>
           </ThemeProvider>
+        </ClerkProvider>
         </body>
       </html>
   )
