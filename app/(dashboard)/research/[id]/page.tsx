@@ -7,65 +7,51 @@ import { Card } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/hooks/use-toast"
 import { useClerk } from "@clerk/nextjs"
+import { fetchReport } from "@/lib/api-service"
+import MuiMarkdown from "mui-markdown"
+
 interface Report {
-  id: number
   title: string
   output: string
   created_at: string
 }
 
 export default function ResearchReportPage() {
-  const { session } = useClerk();
-  const userEmail = session?.user.emailAddresses[0].emailAddress;
+  const { session } = useClerk()
+  const userEmail = session?.user.emailAddresses[0].emailAddress
   const params = useParams()
   const [report, setReport] = useState<Report | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const { toast } = useToast()
 
   useEffect(() => {
-    const fetchReport = async () => {
+    const loadReport = async () => {
       try {
-        const response = await fetch(`/api/reports/${params.id}`)
-        const data = await response.json()
-        setReport(data)
+        if (typeof params.id !== 'string') return
+        const data = await fetchReport(params.id)
+        if (data) {
+          setReport({
+            title: data.title,
+            output: JSON.parse(data.output).content,
+            created_at: data.created_at
+          })
+        }
       } catch (error) {
         console.error("Failed to fetch report:", error)
+        toast({
+          title: "Error",
+          description: "Failed to load the research report.",
+          variant: "destructive",
+        })
       } finally {
         setIsLoading(false)
       }
     }
 
     if (params.id) {
-      fetchReport()
+      loadReport()
     }
-  }, [params.id])
-
-  const handleResearchClick = async () => {
-    try {
-      // Existing research API call...
-      
-      // Add this after starting the research
-      toast({
-        title: "Research Started",
-        description: "Your report is being processed...",
-        duration: null, // Makes the toast persist
-        variant: "processing",
-      })
-      
-      // After research completes
-      toast({
-        title: "Research Complete",
-        description: "Your report is ready",
-        variant: "success",
-      })
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to process research",
-        variant: "destructive",
-      })
-    }
-  }
+  }, [params.id, toast])
 
   if (isLoading) {
     return (
@@ -99,7 +85,7 @@ export default function ResearchReportPage() {
         Generated on {new Date(report.created_at).toLocaleDateString()}
       </p>
       <Card className="p-6 prose dark:prose-invert max-w-none">
-        <ReactMarkdown>{report.output}</ReactMarkdown>
+        <MuiMarkdown>{report.output}</MuiMarkdown>
       </Card>
     </div>
   )

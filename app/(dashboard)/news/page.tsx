@@ -5,25 +5,26 @@ import { NewsList } from "@/components/news/news-list"
 import { NewsHeader } from "@/components/news/news-header"
 import { Button } from "@/components/ui/button"
 import { useClerk } from "@clerk/nextjs"
+import { fetchNews } from "@/lib/api-service"
+
 export default function NewsPage() {
   const [news, setNews] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
+  const { session } = useClerk()
 
   useEffect(() => {
-    fetchNews()
+    loadNews()
   }, [page])
 
-  const fetchNews = async () => {
-    const { session } = useClerk();
-    const userEmail = session?.user.emailAddresses[0].emailAddress;
-
+  const loadNews = async () => {
+    setIsLoading(true)
     try {
-      const response = await fetch(`/api/news?page=${page}`, { method: 'GET' })
-      const data = await response.json()
+      console.log("fetching news")
+      const data = await fetchNews('market_research', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
       
-      if (data.length < 10) {
+      if (Array.isArray(data) && data.length < 10) {
         setHasMore(false)
       }
       
@@ -32,8 +33,6 @@ export default function NewsPage() {
       } else {
         setNews(prev => [...prev, ...data])
       }
-    } catch (error) {
-      console.error("Failed to fetch news:", error)
     } finally {
       setIsLoading(false)
     }

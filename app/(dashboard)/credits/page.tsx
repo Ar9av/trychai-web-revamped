@@ -1,17 +1,38 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { CreditCard, Gift } from "lucide-react"
 import { useClerk } from "@clerk/nextjs"
+import { fetchUserCredits } from "@/lib/api-service"
 
 export default function CreditsPage() {
   const { session } = useClerk();
-  const userEmail = session?.user.emailAddresses[0].emailAddress;
+  const userId = session?.user.id;
   const [couponCode, setCouponCode] = useState("")
+  const [credits, setCredits] = useState({ total: 0, history: [] })
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    if (userId) {
+      loadCredits()
+    }
+  }, [userId])
+
+  const loadCredits = async () => {
+    setIsLoading(true)
+    try {
+      const data = await fetchUserCredits(userId)
+      if (data) {
+        setCredits(data)
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const creditPackages = [
     {
@@ -41,6 +62,11 @@ export default function CreditsPage() {
         <p className="text-muted-foreground mt-1">
           Purchase credits to conduct market research
         </p>
+        {!isLoading && (
+          <p className="text-lg font-medium mt-2">
+            Current Balance: {credits.total} credits
+          </p>
+        )}
       </div>
 
       <div className="grid gap-8 md:grid-cols-3 mb-12">

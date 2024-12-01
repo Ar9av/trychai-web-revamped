@@ -1,47 +1,53 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ReportList } from "@/components/dashboard/report-list"
 import { DashboardHeader } from "@/components/dashboard/header"
-import { ReportSearch } from "@/components/dashboard/report-search"
 import { useClerk } from "@clerk/nextjs"
+import { fetchPrivateReports, fetchPublicReports } from "@/lib/api-service"
+import { ReportTabs } from "@/components/dashboard/report-tabs"
+
+interface Report {
+  id: number
+  title: string
+  md5_hash: string
+  created_at: string
+}
 
 export default function DashboardPage() {
   const { session } = useClerk();
   const userEmail = session?.user.emailAddresses[0].emailAddress;
-  const [reports, setReports] = useState([])
-  const [filteredReports, setFilteredReports] = useState([])
+  const [privateReports, setPrivateReports] = useState<Report[]>([])
+  const [publicReports, setPublicReports] = useState<Report[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    fetchReports()
-  }, [])
+    if (userEmail) {
+      loadReports()
+    }
+  }, [userEmail])
 
-  const fetchReports = async () => {
+  const loadReports = async () => {
+    setIsLoading(true)
     try {
-      const response = await fetch("/api/reports")
-      const data = await response.json()
-      setReports(data)
-      setFilteredReports(data)
-    } catch (error) {
-      console.error("Failed to fetch reports:", error)
+      const [privateData, publicData] = await Promise.all([
+        fetchPrivateReports(userEmail),
+        fetchPublicReports(userEmail)
+      ])
+      setPrivateReports(privateData)
+      setPublicReports(publicData)
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleSearch = (searchTerm: string) => {
-    const filtered = reports.filter(report => 
-      report.title.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    setFilteredReports(filtered)
-  }
-
   return (
     <div className="container py-8">
       <DashboardHeader />
-      <ReportSearch onSearch={handleSearch} />
-      <ReportList reports={filteredReports} isLoading={isLoading} />
+      <ReportTabs 
+        privateReports={privateReports}
+        publicReports={publicReports}
+        isLoading={isLoading}
+      />
     </div>
   )
 }

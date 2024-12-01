@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Search, Loader2 } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
+import { generateResearch } from "@/lib/api-service"
 
 interface ResearchInputProps {
   onTopicSubmit: (topic: string) => void
@@ -29,25 +30,17 @@ export function ResearchInput({ onTopicSubmit, options }: ResearchInputProps) {
     onTopicSubmit(topic.trim())
 
     try {
-      const response = await fetch("/api/research", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          topic: topic.trim(),
-          outline: options?.outline,
-          persona: options?.persona,
-        }),
-      })
+      const result = await generateResearch(
+        topic.trim(),
+        options?.outline,
+        options?.persona
+      )
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to generate report")
+      if (!result?.reportId) {
+        throw new Error('No report ID returned');
       }
 
-      router.push(`/research/${data.reportId}`)
+      router.push(`/research/${result.reportId}`)
     } catch (error) {
       console.error("Error generating report:", error)
       toast({
