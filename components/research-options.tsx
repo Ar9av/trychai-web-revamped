@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { InfoIcon, Wand2, ChevronDown } from "lucide-react"
+import { Calendar } from "@/components/ui/calendar"
 import {
   Tooltip,
   TooltipContent,
@@ -16,6 +17,13 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { format } from "date-fns"
+import { cn } from "@/lib/utils"
 
 interface ResearchOptionsProps {
   onOptionsChange: (options: ResearchOptions) => void
@@ -24,6 +32,7 @@ interface ResearchOptionsProps {
 export interface ResearchOptions {
   outline: string
   persona: string
+  publishedDate?: Date
 }
 
 export function ResearchOptions({ onOptionsChange }: ResearchOptionsProps) {
@@ -33,7 +42,7 @@ export function ResearchOptions({ onOptionsChange }: ResearchOptionsProps) {
     persona: "",
   })
 
-  const handleOptionChange = (key: keyof ResearchOptions, value: string) => {
+  const handleOptionChange = (key: keyof ResearchOptions, value: string | Date | undefined) => {
     const newOptions = {
       ...options,
       [key]: value,
@@ -125,6 +134,50 @@ export function ResearchOptions({ onOptionsChange }: ResearchOptionsProps) {
             placeholder="Describe your target audience persona..."
             className="min-h-[150px]"
           />
+        </div>
+
+        <div>
+          <div className="flex items-center space-x-2 mb-2">
+            <Label>Published Date</Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <InfoIcon className="h-4 w-4 text-muted-foreground" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Filter content by published date</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !options.publishedDate && "text-muted-foreground"
+                )}
+              >
+                {options.publishedDate ? (
+                  format(options.publishedDate, "PPP")
+                ) : (
+                  <span>Pick a date</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={options.publishedDate}
+                onSelect={(date) => handleOptionChange("publishedDate", date)}
+                disabled={(date) =>
+                  date > new Date() || date < new Date("2000-01-01")
+                }
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
         </div>
       </CollapsibleContent>
     </Collapsible>

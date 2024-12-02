@@ -7,6 +7,9 @@ import { Input } from "@/components/ui/input"
 import { Info, Loader2, Search } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { generateResearch } from "@/lib/api-service"
+import { searchTopic, type SearchResult } from "@/lib/exa-service"
+import { AssistedToggle } from "@/components/research/assisted-toggle"
+import { SearchResults } from "@/components/research/search-results"
 import {
   Tooltip,
   TooltipContent,
@@ -19,6 +22,7 @@ interface ResearchInputProps {
   options?: {
     outline: string
     persona: string
+    publishedDate?: Date
   }
   email: string
   userId: string
@@ -35,6 +39,9 @@ export function ResearchInput({
   onTopicChange
 }: ResearchInputProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const [isAssisted, setIsAssisted] = useState(false)
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([])
+  const [isSearching, setIsSearching] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
 
@@ -44,6 +51,28 @@ export function ResearchInput({
 
     setIsLoading(true)
     onTopicSubmit(topic.trim())
+
+    if (isAssisted) {
+      setIsSearching(true)
+      try {
+        const results = await searchTopic(
+          topic.trim(), 
+          options?.publishedDate?.toISOString()
+        )
+        setSearchResults(results)
+      } catch (error) {
+        console.error("Error searching topic:", error)
+        toast({
+          title: "Error",
+          description: "Failed to search for related content",
+          variant: "destructive",
+        })
+      } finally {
+        setIsSearching(false)
+      }
+      setIsLoading(false)
+      return
+    }
 
     try {
       const result = await generateResearch(
@@ -98,12 +127,12 @@ export function ResearchInput({
             {isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Generating...
+                {isAssisted ? "Searching..." : "Generating..."}
               </>
             ) : (
               <>
                 <Search className="h-4 w-4 mr-2" />
-                Research
+                {isAssisted ? "Search" : "Research"}
               </>
             )}
           </Button>
@@ -119,6 +148,16 @@ export function ResearchInput({
           </Tooltip>
         </TooltipProvider>
       </div>
+
+      <AssistedToggle 
+        enabled={isAssisted} 
+        onToggle={setIsAssisted} 
+      />
+
+      <SearchResults 
+        results={searchResults}
+        isLoading={isSearching}
+      />
     </div>
   )
 }
