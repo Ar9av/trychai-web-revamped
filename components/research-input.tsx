@@ -4,9 +4,15 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search, Loader2 } from "lucide-react"
+import { Info, Loader2, Search } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { generateResearch } from "@/lib/api-service"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface ResearchInputProps {
   onTopicSubmit: (topic: string) => void
@@ -18,7 +24,6 @@ interface ResearchInputProps {
 }
 
 export function ResearchInput({ onTopicSubmit, options, email }: ResearchInputProps) {
-  
   const [topic, setTopic] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -38,6 +43,15 @@ export function ResearchInput({ onTopicSubmit, options, email }: ResearchInputPr
         options?.persona,
         email
       )
+
+      if (result?.error === 'Insufficient credits') {
+        toast({
+          title: "Insufficient Credits",
+          description: `You need ${result.requiredCredits} credits to generate a report. Current balance: ${result.currentCredits} credits`,
+          variant: "destructive",
+        })
+        return
+      }
 
       if (!result?.reportId) {
         throw new Error('No report ID returned');
@@ -61,28 +75,40 @@ export function ResearchInput({ onTopicSubmit, options, email }: ResearchInputPr
       <h1 className="text-3xl font-bold text-center mb-8">
         What would you like to research?
       </h1>
-      <form onSubmit={handleSubmit} className="flex gap-2">
-        <Input
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-          placeholder="Enter a topic or market to research..."
-          className="flex-1"
-          disabled={isLoading}
-        />
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Generating...
-            </>
-          ) : (
-            <>
-              <Search className="h-4 w-4 mr-2" />
-              Research
-            </>
-          )}
-        </Button>
-      </form>
+      <div className="flex gap-2 items-center">
+        <form onSubmit={handleSubmit} className="flex gap-2 flex-1">
+          <Input
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+            placeholder="Enter a topic or market to research..."
+            className="flex-1"
+            disabled={isLoading}
+          />
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <Search className="h-4 w-4 mr-2" />
+                Research
+              </>
+            )}
+          </Button>
+        </form>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Info className="h-4 w-4 text-muted-foreground" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Generating a new report costs 50 credits</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
     </div>
   )
 }

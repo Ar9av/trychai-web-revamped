@@ -13,20 +13,23 @@ import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useSession } from "@clerk/nextjs"
+import { useClerk } from "@clerk/nextjs"
+import { fetchUserCredits } from "@/lib/api-service"
 
 export function ResearchSidebar() {
   const [collapsed, setCollapsed] = useState(false)
   const pathname = usePathname()
-  const session = useSession()
   const [credits, setCredits] = useState(0)
+  const { session } = useClerk();
+  const userId = session?.user.id;
 
   const fetchCredits = async () => {
     try {
-      const response = await fetch(`/api/credits?userId=${session.user.id}`)
-      const data = await response.json()
-      if (response.ok) {
-        setCredits(data.totalCredits)
+      if (userId) {
+        const data = await fetchUserCredits(userId);
+        if (data) {
+            setCredits(data.totalCredits);  
+        }
       }
     } catch (error) {
       console.error('Error fetching credits:', error)
@@ -34,10 +37,10 @@ export function ResearchSidebar() {
   }
 
   useEffect(() => {
-    if (session.user) {
+    if (userId) {
       fetchCredits()
     }
-  }, [session.user])
+  }, [userId])
 
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },

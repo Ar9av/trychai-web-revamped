@@ -4,9 +4,15 @@ import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, X } from "lucide-react"
+import { Info, Plus, X } from "lucide-react"
 import { useClerk } from "@clerk/nextjs"
 import { toast } from "@/components/ui/use-toast"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface TagFiltersProps {
   tags: string[]
@@ -50,7 +56,19 @@ export function TagFilters({
         }),
       })
 
-      if (!response.ok) throw new Error("Failed to add tag")
+      const data = await response.json()
+
+      if (!response.ok) {
+        if (data.error === 'Insufficient credits') {
+          toast({
+            title: "Insufficient Credits",
+            description: `You need ${data.requiredCredits} credits to add a new tag. Current balance: ${data.currentCredits} credits`,
+            variant: "destructive",
+          })
+          return
+        }
+        throw new Error(data.error || "Failed to add tag")
+      }
 
       onTagAdd(newTag.trim())
       setNewTag("")
@@ -89,17 +107,29 @@ export function TagFilters({
           </Badge>
         ))}
       </div>
-      <div className="flex gap-2">
-        <Input
-          placeholder="Add new tag..."
-          value={newTag}
-          onChange={(e) => setNewTag(e.target.value)}
-          onKeyPress={(e) => e.key === "Enter" && handleAddTag()}
-        />
-        <Button onClick={handleAddTag}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Tag
-        </Button>
+      <div className="flex gap-2 items-center">
+        <div className="flex-1 flex gap-2">
+          <Input
+            placeholder="Add new tag..."
+            value={newTag}
+            onChange={(e) => setNewTag(e.target.value)}
+            onKeyPress={(e) => e.key === "Enter" && handleAddTag()}
+          />
+          <Button onClick={handleAddTag}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Tag
+          </Button>
+        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Info className="h-4 w-4 text-muted-foreground" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Adding a new tag costs 5 credits</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </div>
   )

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
+const TAG_COST = 5;
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get('userId');
@@ -33,13 +35,41 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const newTag = await prisma.user_tags.create({
-      data: {
-        user_id: userId,
-        tag,
-        removed: false
-      }
+    // Check user credits
+    const history = await prisma.credit_history.findMany({
+      where: { user_id: userId }
     });
+
+    const totalCredits = history.reduce((total, record) => {
+      return total + (record.type === 'credit' ? record.value : -record.value);
+    }, 0);
+
+    if (totalCredits < TAG_COST) {
+      return NextResponse.json({ 
+        error: 'Insufficient credits',
+        requiredCredits: TAG_COST,
+        currentCredits: totalCredits
+      }, { status: 400 });
+    }
+
+    // Create tag and deduct credits
+    const [newTag] = await prisma.$transaction([
+      prisma.user_tags.create({
+        data: {
+          user_id: userId,
+          tag,
+          removed: false
+        }
+      }),
+      prisma.credit_history.create({
+        data: {
+          user_id: userId,
+          type: 'debit',
+          description: `New tag: ${tag}`,
+          value: TAG_COST
+        }
+      })
+    ]);
 
     return NextResponse.json(newTag);
   } catch (error) {

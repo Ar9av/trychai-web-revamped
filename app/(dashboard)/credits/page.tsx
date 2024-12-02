@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { CreditCard, Gift } from "lucide-react"
 import { useClerk } from "@clerk/nextjs"
 import { fetchUserCredits } from "@/lib/api-service"
+import { toast } from "@/components/ui/use-toast"
 
 export default function CreditsPage() {
   const { session } = useClerk();
@@ -15,6 +16,7 @@ export default function CreditsPage() {
   const [couponCode, setCouponCode] = useState("")
   const [credits, setCredits] = useState({ total: 0, history: [] })
   const [isLoading, setIsLoading] = useState(true)
+  const [isApplying, setIsApplying] = useState(false)
 
   useEffect(() => {
     if (userId) {
@@ -31,6 +33,45 @@ export default function CreditsPage() {
       }
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const applyCoupon = async () => {
+    if (!couponCode.trim() || !userId) return
+    setIsApplying(true)
+
+    try {
+      const response = await fetch('/api/credits', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          couponCode: couponCode.trim(),
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to apply coupon')
+      }
+
+      toast({
+        title: "Success",
+        description: "Coupon applied successfully",
+      })
+      setCouponCode("")
+      loadCredits()
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to apply coupon",
+        variant: "destructive",
+      })
+    } finally {
+      setIsApplying(false)
     }
   }
 
@@ -64,7 +105,7 @@ export default function CreditsPage() {
         </p>
         {!isLoading && (
           <p className="text-lg font-medium mt-2">
-            Current Balance: {credits.total} credits
+            Current Balance: {credits.totalCredits} credits
           </p>
         )}
       </div>
@@ -100,9 +141,15 @@ export default function CreditsPage() {
               value={couponCode}
               onChange={(e) => setCouponCode(e.target.value)}
               placeholder="Enter coupon code"
+              disabled={isApplying}
             />
           </div>
-          <Button className="self-end" variant="outline">
+          <Button 
+            className="self-end" 
+            variant="outline"
+            onClick={applyCoupon}
+            disabled={isApplying}
+          >
             <Gift className="mr-2 h-4 w-4" />
             Apply Coupon
           </Button>
