@@ -8,14 +8,15 @@ import { SignInButton } from "@clerk/nextjs"
 import { SignedOut } from "@clerk/nextjs"
 import { Brain } from "lucide-react"
 import Link from "next/link"
-
+import Image from "next/image"
 export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <nav className="container mx-auto flex h-14 items-center justify-between">
         <div className="hidden md:flex">
           <Link href="/" className="flex items-center space-x-2">
-            <Brain className="h-6 w-6" />
+            {/* <Brain className="h-6 w-6" /> */}
+            <Image src="/favicon.ico" alt="Trychai Logo" width={32} height={32} className="filter invert" />
             <span className="font-bold">Trychai</span>
           </Link>
         </div>
