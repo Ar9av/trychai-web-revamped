@@ -72,3 +72,11 @@ model user_tags {
   @@unique([user_id, tag])
   @@index([user_id])
 }
+
+model exa_responses {
+  id           Int      @id @default(autoincrement())
+  payload_md5  String   @unique
+  payload_json Json
+  response_json Json
+  created_at   DateTime @default(now())
+}
