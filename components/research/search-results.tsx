@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -8,23 +8,32 @@ import { Button } from "@/components/ui/button"
 import { FileText } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { SelectedResultsPanel } from "./selected-results-panel"
-
-interface SearchResult {
-  title: string
-  url: string
-  content: string
-  domain: string
-}
+import { getStoredResults, storeResults } from "@/lib/storage-service"
+import { SearchResult } from "@/lib/exa-service"
 
 interface SearchResultsProps {
   results: SearchResult[]
   isLoading: boolean
   onProcessSelected: (selected: SearchResult[]) => void
   topic: string
+  isAssisted: boolean
 }
 
-export function SearchResults({ results, isLoading, onProcessSelected, topic }: SearchResultsProps) {
+export function SearchResults({ results, isLoading, onProcessSelected, topic, isAssisted }: SearchResultsProps) {
   const [selectedResults, setSelectedResults] = useState<SearchResult[]>([])
+
+  // Load stored results on mount
+  useEffect(() => {
+    const stored = getStoredResults()
+    if (stored.length > 0) {
+      setSelectedResults(stored)
+    }
+  }, [])
+
+  // Update localStorage when selection changes
+  useEffect(() => {
+    storeResults(selectedResults)
+  }, [selectedResults])
 
   const handleSelect = (result: SearchResult) => {
     const isSelected = selectedResults.some(r => r.url === result.url)
@@ -65,63 +74,62 @@ export function SearchResults({ results, isLoading, onProcessSelected, topic }: 
     )
   }
 
-  if (!results.length) {
-    return null
-  }
-
   return (
     <div className="mt-4">
-      <h2 className="text-2xl font-bold mb-6">Research: {topic}</h2>
-      <div className="flex justify-between items-center mb-4">
-        <div className="text-sm text-muted-foreground">
-          {selectedResults.length} results selected
+      {isAssisted && (
+        <div className="flex justify-between items-center mb-4">
+          <div className="text-sm text-muted-foreground">
+            {selectedResults.length} results selected
+          </div>
+          <Button
+            onClick={handleProcessSelected}
+            disabled={selectedResults.length === 0}
+          >
+            <FileText className="mr-2 h-4 w-4" />
+            Process for Report
+          </Button>
         </div>
-        <Button
-          onClick={handleProcessSelected}
-          disabled={selectedResults.length === 0}
-        >
-          <FileText className="mr-2 h-4 w-4" />
-          Process for Report
-        </Button>
-      </div>
+      )}
 
       <SelectedResultsPanel
         selectedResults={selectedResults}
         onRemove={handleRemove}
       />
 
-      <div className="space-y-4 mt-4">
-        {results.map((result, index) => (
-          <Card key={index} className="p-4">
-            <div className="flex items-start gap-4">
-              <Checkbox
-                checked={selectedResults.some(r => r.url === result.url)}
-                onCheckedChange={() => handleSelect(result)}
-                className="mt-1"
-              />
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <img
-                    src={`https://www.google.com/s2/favicons?sz=64&domain=${result.domain}`}
-                    alt={result.domain}
-                    className="w-4 h-4"
-                  />
-                  <a
-                    href={result.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-muted-foreground hover:underline"
-                  >
-                    {result.domain}
-                  </a>
+      {results.length > 0 && (
+        <div className="space-y-4 mt-4">
+          {results.map((result, index) => (
+            <Card key={index} className="p-4">
+              <div className="flex items-start gap-4">
+                <Checkbox
+                  checked={selectedResults.some(r => r.url === result.url)}
+                  onCheckedChange={() => handleSelect(result)}
+                  className="mt-1"
+                />
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <img
+                      src={`https://www.google.com/s2/favicons?sz=64&domain=${result.domain}`}
+                      alt={result.domain}
+                      className="w-4 h-4"
+                    />
+                    <a
+                      href={result.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-muted-foreground hover:underline"
+                    >
+                      {result.domain}
+                    </a>
+                  </div>
+                  <h3 className="font-medium mb-2">{result.title}</h3>
+                  <p className="text-sm text-muted-foreground">{result.content}</p>
                 </div>
-                <h3 className="font-medium mb-2">{result.title}</h3>
-                <p className="text-sm text-muted-foreground">{result.content}</p>
               </div>
-            </div>
-          </Card>
-        ))}
-      </div>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

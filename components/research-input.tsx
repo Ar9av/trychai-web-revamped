@@ -201,6 +201,7 @@ export function ResearchInput({
           isLoading={isSearching}
           onProcessSelected={handleProcessSelected}
           topic={topic}
+          isAssisted={isAssisted}
         />
       )}
     </div>

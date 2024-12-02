@@ -20,7 +20,7 @@ interface SelectedResultsPanelProps {
 }
 
 export function SelectedResultsPanel({ selectedResults, onRemove }: SelectedResultsPanelProps) {
-  const [isOpen, setIsOpen] = useState(true)
+  const [isOpen, setIsOpen] = useState(false)
 
   if (selectedResults.length === 0) return null
 
