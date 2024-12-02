@@ -65,7 +65,7 @@ export function ReportList({ reports, isLoading, isPrivate = false, onReportDele
           <TableRow>
             <TableHead>Title</TableHead>
             <TableHead>Created</TableHead>
-            <TableHead>Hash</TableHead>
+            {/* <TableHead>Hash</TableHead> */}
             {isPrivate && <TableHead className="w-[100px]">Actions</TableHead>}
           </TableRow>
         </TableHeader>
@@ -84,12 +84,12 @@ export function ReportList({ reports, isLoading, isPrivate = false, onReportDele
               >
                 {formatDistanceToNow(new Date(report.created_at), { addSuffix: true })}
               </TableCell>
-              <TableCell 
+              {/* <TableCell 
                 className="font-mono text-sm cursor-pointer"
                 onClick={() => window.location.href = `/research/${report.md5_hash}`}
               >
                 {report.md5_hash}
-              </TableCell>
+              </TableCell> */}
               {isPrivate && (
                 <TableCell>
                   <DeleteConfirmationDialog

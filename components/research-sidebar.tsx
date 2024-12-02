@@ -7,7 +7,8 @@ import {
   Newspaper, 
   CreditCard,
   ChevronLeft,
-  Coins
+  Coins,
+  Menu
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
@@ -15,20 +16,33 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useClerk } from "@clerk/nextjs"
 import { fetchUserCredits } from "@/lib/api-service"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 export function ResearchSidebar() {
   const [collapsed, setCollapsed] = useState(false)
   const pathname = usePathname()
   const [credits, setCredits] = useState(0)
-  const { session } = useClerk();
-  const userId = session?.user.id;
+  const { session } = useClerk()
+  const userId = session?.user.id
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const fetchCredits = async () => {
     try {
       if (userId) {
-        const data = await fetchUserCredits(userId);
+        const data = await fetchUserCredits(userId)
         if (data) {
-            setCredits(data.totalCredits);  
+          setCredits(data.totalCredits)
         }
       }
     } catch (error) {
@@ -49,11 +63,8 @@ export function ResearchSidebar() {
     { icon: CreditCard, label: "Credits", href: "/credits" },
   ]
 
-  return (
-    <div className={cn(
-      "fixed top-14 left-0 h-[calc(100vh-3.5rem)] bg-card border-r transition-all duration-300",
-      collapsed ? "w-16" : "w-64"
-    )}>
+  const SidebarContent = () => (
+    <div className="h-full flex flex-col">
       <div className="p-4 flex items-center justify-between">
         <h2 className={cn(
           "font-bold transition-all duration-300",
@@ -65,6 +76,7 @@ export function ResearchSidebar() {
           variant="ghost" 
           size="icon"
           onClick={() => setCollapsed(!collapsed)}
+          className="hidden md:flex"
         >
           <ChevronLeft className={cn(
             "h-4 w-4 transition-all",
@@ -73,7 +85,7 @@ export function ResearchSidebar() {
         </Button>
       </div>
 
-      <nav className="space-y-2 p-2">
+      <nav className="space-y-2 p-2 flex-1">
         {menuItems.map((item, index) => {
           const isActive = pathname === item.href
           return (
@@ -100,7 +112,7 @@ export function ResearchSidebar() {
         })}
       </nav>
 
-      <div className="absolute bottom-4 left-0 right-0 p-4">
+      <div className="p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-zinc-400">
             <Coins className="h-4 w-4" />
@@ -120,5 +132,42 @@ export function ResearchSidebar() {
         </div>
       </div>
     </div>
+  )
+
+  if (isMobile) {
+    return (
+      <>
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="fixed top-4 left-4 z-50 md:hidden"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="p-0 w-64">
+            <SidebarContent />
+          </SheetContent>
+        </Sheet>
+        <div className="w-0 md:w-64 flex-shrink-0" />
+      </>
+    )
+  }
+
+  return (
+    <>
+      <div className={cn(
+        "fixed top-14 left-0 h-[calc(100vh-3.5rem)] bg-card border-r transition-all duration-300 hidden md:block",
+        collapsed ? "w-16" : "w-64"
+      )}>
+        <SidebarContent />
+      </div>
+      <div className={cn(
+        "hidden md:block flex-shrink-0 transition-all duration-300",
+        collapsed ? "w-16" : "w-64"
+      )} />
+    </>
   )
 }

@@ -85,8 +85,8 @@ export function ResearchInput({
       <h1 className="text-3xl font-bold text-center mb-8">
         What would you like to research?
       </h1>
-      <div className="flex gap-2 items-center">
-        <form onSubmit={handleSubmit} className="flex gap-2 flex-1">
+      <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
+        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 flex-1">
           <Input
             value={topic}
             onChange={(e) => onTopicChange(e.target.value)}
@@ -94,7 +94,7 @@ export function ResearchInput({
             className="flex-1"
             disabled={isLoading}
           />
-          <Button type="submit" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
             {isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -111,7 +111,7 @@ export function ResearchInput({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
-              <Info className="h-4 w-4 text-muted-foreground" />
+              <Info className="h-4 w-4 text-muted-foreground hidden sm:block" />
             </TooltipTrigger>
             <TooltipContent>
               <p>Generating a new report costs 50 credits</p>

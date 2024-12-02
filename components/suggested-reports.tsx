@@ -19,7 +19,7 @@ export function SuggestedReports({ onSelect }: SuggestedReportsProps) {
   return (
     <div className="mt-8">
       <h3 className="text-sm font-medium mb-4">Suggested Topics</h3>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {suggestions.map((topic, index) => (
           <Button
             key={index}
