@@ -42,7 +42,7 @@ export function ReportList({ reports, isLoading }: ReportListProps) {
         </TableHeader>
         <TableBody>
           {reports.map((report) => (
-            <TableRow key={report.id}>
+            <TableRow key={report.id} className="cursor-pointer" onClick={() => window.location.href = `/research/${report.md5_hash}`}>
               <TableCell className="font-medium">{report.title}</TableCell>
               <TableCell>
                 {formatDistanceToNow(new Date(report.created_at), { addSuffix: true })}

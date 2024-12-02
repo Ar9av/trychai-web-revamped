@@ -30,8 +30,8 @@ export default function DashboardPage() {
     setIsLoading(true)
     try {
       const [privateData, publicData] = await Promise.all([
-        fetchPrivateReports(userEmail),
-        fetchPublicReports(userEmail)
+        fetchPrivateReports(userEmail) as Promise<Report[]>,
+        fetchPublicReports(userEmail) as Promise<Report[]>
       ])
       setPrivateReports(privateData)
       setPublicReports(publicData)

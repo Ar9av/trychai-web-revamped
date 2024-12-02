@@ -3,7 +3,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ReportList } from "./report-list"
 import { ReportSearch } from "./report-search"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 interface Report {
   id: number
@@ -23,18 +23,25 @@ export function ReportTabs({ privateReports, publicReports, isLoading }: ReportT
   const [filteredPublic, setFilteredPublic] = useState(publicReports)
 
   const handlePrivateSearch = (searchTerm: string) => {
-    const filtered = privateReports.filter(report => 
+    const filtered = searchTerm ? privateReports.filter(report => 
       report.title.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    setFilteredPrivate(filtered)
+    ) : privateReports;
+    setFilteredPrivate(filtered);
   }
 
   const handlePublicSearch = (searchTerm: string) => {
-    const filtered = publicReports.filter(report => 
+    const filtered = searchTerm ? publicReports.filter(report => 
       report.title.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    ) : publicReports;
     setFilteredPublic(filtered)
   }
+
+  useEffect(() => {
+    if (!isLoading) {
+      setFilteredPrivate(privateReports);
+      setFilteredPublic(publicReports);
+    }
+  }, [isLoading, privateReports, publicReports]);
 
   return (
     <Tabs defaultValue="private" className="w-full">
