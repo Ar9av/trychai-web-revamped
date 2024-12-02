@@ -9,10 +9,13 @@ const openai = new AzureOpenAI({
 
 export async function generateResearchReport(topic: string, outline: string = "", persona: string = "") {
   try {
-    const systemPrompt = `You are an expert market research analyst. Generate a detailed market research report.
-    ${outline ? `Follow this outline:\n${outline}` : ''}
+    const outline_json = JSON.parse(outline);
+    const systemPrompt = `You are an expert market research analyst. Return the result in markdown format. Make sure to create using the data from the sources.
+    Also make sure you cite the sources in the report in markdown format.
+    ${outline_json.instruction ? `Instruction:\n${outline_json.instruction}` : ''}
+    ${outline_json.topic ? `Topic:\n${outline_json.topic}` : ''}
+    ${outline_json.sources ? `Sources:\n${JSON.stringify(outline_json.sources)}` : ''}
     ${persona ? `Target audience persona:\n${persona}` : ''}`;
-
     const response = await openai.chat.completions.create({
       model: deployment || "",
       messages: [

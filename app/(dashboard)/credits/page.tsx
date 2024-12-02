@@ -11,11 +11,14 @@ import { fetchUserCredits } from "@/lib/api-service"
 import { toast } from "@/components/ui/use-toast"
 import { CreditHistory } from "@/components/credits/credit-history"
 
+// Define a type for credits
+type CreditsType = { totalCredits: number; history: any[] };
+
 export default function CreditsPage() {
   const { session } = useClerk();
   const userId = session?.user.id;
   const [couponCode, setCouponCode] = useState("")
-  const [credits, setCredits] = useState({ totalCredits: 0, history: [] })
+  const [credits, setCredits] = useState<CreditsType>({ totalCredits: 0, history: [] })
   const [isLoading, setIsLoading] = useState(true)
   const [isApplying, setIsApplying] = useState(false)
 
@@ -28,9 +31,9 @@ export default function CreditsPage() {
   const loadCredits = async () => {
     setIsLoading(true)
     try {
-      const data = await fetchUserCredits(userId)
+      const data = await fetchUserCredits(userId || "")
       if (data) {
-        setCredits(data)
+        setCredits(data as CreditsType)
       }
     } finally {
       setIsLoading(false)

@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card } from "@/components/ui/card"
 import { SearchResult } from "@/lib/api-service"
-import { Loader2, Wand2 } from "lucide-react"
-
+import { Loader2, Wand2, Info } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip"
 interface InstructionInputProps {
   selectedResults: SearchResult[]
   topic: string
@@ -27,11 +27,23 @@ export function InstructionInput({
 
   return (
     <Card className="p-6 mb-6">
-      <h3 className="text-lg font-medium mb-4">Research Instructions</h3>
-      <p className="text-sm text-muted-foreground mb-4">
+      <h3 className="text-lg font-medium mb-4 flex items-center">
+        Research Instructions
+        <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger>
+            <Info className="ml-2 cursor-pointer" />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Provide instructions for generating the research report based on selected sources, including focus areas and insights.</p>
+          </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </h3>
+      {/* <p className="text-sm text-muted-foreground mb-4">
         Provide specific instructions for generating the research report based on the selected sources.
         Consider aspects like focus areas, analysis depth, and specific insights you&apos;re looking for.
-      </p>
+      </p> */}
       <Textarea
         value={instruction}
         onChange={(e) => setInstruction(e.target.value)}

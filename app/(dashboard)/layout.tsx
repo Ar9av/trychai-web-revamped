@@ -14,7 +14,7 @@ export default function DashboardLayout({
         <div className="flex-1 overflow-y-auto">
           {children}
         </div>
-        <Toaster position="right" />
+        <Toaster/>
       </div>
     </ClerkProvider>
   )

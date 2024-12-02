@@ -53,11 +53,11 @@ export default function NewsPage() {
         )
       )
       
-      const mergedNews = allNews.flat().sort((a, b) => 
+      const mergedNews = allNews.flat().sort((a: any, b: any) => 
         new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime()
       )
       
-      setNews(mergedNews)
+      setNews(mergedNews as never[])
     } finally {
       setIsLoading(false)
     }

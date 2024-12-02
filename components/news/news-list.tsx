@@ -14,6 +14,8 @@ interface NewsItem {
   content: string
   source?: string
   url?: string
+  summary?: string
+  publishedDate?: string
   // }
 }
 

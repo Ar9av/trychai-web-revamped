@@ -7,7 +7,7 @@ export default function AboutPage() {
       <div className="max-w-3xl mx-auto text-center mb-12">
         <h1 className="text-4xl font-bold tracking-tighter mb-4">About Trychai</h1>
         <p className="text-gray-500 dark:text-gray-400">
-          We're revolutionizing market research with artificial intelligence, making it faster and more accurate than ever before.
+          We&apos;re revolutionizing market research with artificial intelligence, making it faster and more accurate than ever before.
         </p>
       </div>
 
@@ -65,7 +65,7 @@ export default function AboutPage() {
           <h2 className="text-3xl font-bold tracking-tighter mb-4">Our Story</h2>
           <p className="text-gray-500 dark:text-gray-400">
             Founded in 2023, Trychai emerged from a simple idea: make market research more accessible and accurate through AI. 
-            Today, we're proud to serve thousands of businesses worldwide, helping them make better decisions with data-driven insights.
+            Today, we&apos;re proud to serve thousands of businesses worldwide, helping them make better decisions with data-driven insights.
           </p>
         </section>
       </div>

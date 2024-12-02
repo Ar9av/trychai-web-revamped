@@ -18,6 +18,11 @@ import { useClerk } from "@clerk/nextjs"
 import { fetchUserCredits } from "@/lib/api-service"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
+// Define an interface for the expected response
+interface UserCreditsResponse {
+  totalCredits: number;
+}
+
 export function ResearchSidebar() {
   const [collapsed, setCollapsed] = useState(false)
   const pathname = usePathname()
@@ -40,7 +45,7 @@ export function ResearchSidebar() {
   const fetchCredits = async () => {
     try {
       if (userId) {
-        const data = await fetchUserCredits(userId)
+        const data = await fetchUserCredits(userId) as UserCreditsResponse
         if (data) {
           setCredits(data.totalCredits)
         }

@@ -17,7 +17,7 @@ export function OutlineEditor({ outline, onOutlineChange, onConfirm }: OutlineEd
     <Card className="mt-6 p-6">
       <h3 className="text-lg font-medium mb-4">Generated Outline</h3>
       <p className="text-sm text-muted-foreground mb-4">
-        Review and edit the generated outline below. Once you're satisfied, click Confirm to proceed with the report generation.
+        Review and edit the generated outline below. Once you&apos;re satisfied, click Confirm to proceed with the report generation.
       </p>
       <Textarea
         value={outline}

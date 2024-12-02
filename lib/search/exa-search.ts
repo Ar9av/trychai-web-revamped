@@ -19,7 +19,7 @@ export async function performExaSearch(payload: ExaSearchPayload): Promise<ExaSe
     return result.results.map(item => ({
       title: item.title || "",
       url: item.url || "",
-      content: item.summary || item.content || "",
+      content: item.summary || "",
       domain: new URL(item.url).hostname.replace('www.', '')
     }));
   } catch (error) {

@@ -16,6 +16,13 @@ interface Report {
   created_at: string
 }
 
+// Define the expected structure of the data
+interface ReportData {
+  title: string;
+  output: string;
+  created_at: string;
+}
+
 export default function ResearchReportPage() {
   
   const CustomHeader = (props: any) => (
@@ -66,7 +73,7 @@ export default function ResearchReportPage() {
     const loadReport = async () => {
       try {
         if (typeof params.id !== 'string') return
-        const data = await fetchReport(params.id)
+        const data = await fetchReport(params.id) as ReportData
         if (data) {
           setReport({
             title: data.title,

@@ -21,8 +21,8 @@ export async function getCachedExaSearch(payload: ExaSearchPayload) {
       where: { payload_md5: payloadMd5 }
     });
 
-    if (cached) {
-      return cached.response_json as ExaSearchResult[];
+    if (cached && Array.isArray(cached.response_json)) {
+        return cached.response_json as unknown as ExaSearchResult[];
     }
 
     return null;
@@ -39,8 +39,8 @@ export async function cacheExaSearch(payload: ExaSearchPayload, results: ExaSear
     await prisma.exa_responses.create({
       data: {
         payload_md5: payloadMd5,
-        payload_json: payload,
-        response_json: results
+        payload_json: JSON.parse(JSON.stringify(payload)), // Convert to a plain JSON object
+        response_json: JSON.parse(JSON.stringify(results))
       }
     });
   } catch (error) {

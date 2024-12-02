@@ -31,6 +31,15 @@ interface ResearchInputProps {
   onHideOptions?: () => void
 }
 
+// Define a type for the expected result
+interface GenerateResearchResult {
+  reportId?: string;
+  error?: string;
+  requiredCredits?: number;
+  currentCredits?: number;
+}
+
+
 export function ResearchInput({ 
   onTopicSubmit, 
   options, 
@@ -41,7 +50,7 @@ export function ResearchInput({
   onHideOptions
 }: ResearchInputProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const [isAssisted, setIsAssisted] = useState(false)
+  const [isAssisted, setIsAssisted] = useState(true)
   const [isSearching, setIsSearching] = useState(false)
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [hasStartedResearch, setHasStartedResearch] = useState(false)
@@ -88,7 +97,7 @@ export function ResearchInput({
         options?.persona,
         email,
         userId
-      )
+      ) as GenerateResearchResult; // Ensure the result is typed correctly
 
       if (result?.error === 'Insufficient credits') {
         toast({
@@ -99,7 +108,7 @@ export function ResearchInput({
         return
       }
 
-      if (!result?.reportId) {
+      if (!result.reportId) {
         throw new Error('No report ID returned')
       }
 
@@ -137,9 +146,9 @@ export function ResearchInput({
         options?.persona,
         email,
         userId
-      )
+      ) as GenerateResearchResult; // Ensure the result is typed correctly
 
-      if (!result?.reportId) {
+      if (!result.reportId) {
         throw new Error('No report ID returned')
       }
 
