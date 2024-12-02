@@ -21,10 +21,17 @@ interface ResearchInputProps {
     persona: string
   }
   email: string
+  topic: string
+  onTopicChange: (topic: string) => void
 }
 
-export function ResearchInput({ onTopicSubmit, options, email }: ResearchInputProps) {
-  const [topic, setTopic] = useState("")
+export function ResearchInput({ 
+  onTopicSubmit, 
+  options, 
+  email,
+  topic,
+  onTopicChange
+}: ResearchInputProps) {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
@@ -79,7 +86,7 @@ export function ResearchInput({ onTopicSubmit, options, email }: ResearchInputPr
         <form onSubmit={handleSubmit} className="flex gap-2 flex-1">
           <Input
             value={topic}
-            onChange={(e) => setTopic(e.target.value)}
+            onChange={(e) => onTopicChange(e.target.value)}
             placeholder="Enter a topic or market to research..."
             className="flex-1"
             disabled={isLoading}

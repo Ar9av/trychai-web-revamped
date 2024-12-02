@@ -19,18 +19,22 @@ export default function DemoPage() {
     setTopic(newTopic)
   }
 
+  const handleSuggestedTopicSelect = (selectedTopic: string) => {
+    setTopic(selectedTopic)
+  }
+
   return (
     <main className="p-6 overflow-y-auto">
       <div className="max-w-4xl mx-auto">
-        <ResearchInput onTopicSubmit={(topic) => handleTopicSubmit(topic)} options={options} email={user_email || ""} />
+        <ResearchInput 
+          onTopicSubmit={handleTopicSubmit} 
+          options={options} 
+          email={user_email || ""} 
+          topic={topic}
+          onTopicChange={setTopic}
+        />
         <ResearchOptions onOptionsChange={setOptions} />
-        <SuggestedReports onSelect={setTopic} />
-        {topic && (
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold mb-4">Generating report for: {topic}</h2>
-            {/* Research results will be displayed here */}
-          </div>
-        )}
+        <SuggestedReports onSelect={handleSuggestedTopicSelect} />
       </div>
     </main>
   )
