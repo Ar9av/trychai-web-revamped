@@ -1,12 +1,13 @@
 "use client"
 
+import { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import { FileText } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
-import React from "react"
+import { SelectedResultsPanel } from "./selected-results-panel"
 
 interface SearchResult {
   title: string
@@ -19,23 +20,27 @@ interface SearchResultsProps {
   results: SearchResult[]
   isLoading: boolean
   onProcessSelected: (selected: SearchResult[]) => void
+  topic: string
 }
 
-export function SearchResults({ results, isLoading, onProcessSelected }: SearchResultsProps) {
-  const [selectedResults, setSelectedResults] = React.useState<Set<number>>(new Set())
+export function SearchResults({ results, isLoading, onProcessSelected, topic }: SearchResultsProps) {
+  const [selectedResults, setSelectedResults] = useState<SearchResult[]>([])
 
-  const handleSelect = (index: number) => {
-    const newSelected = new Set(selectedResults)
-    if (newSelected.has(index)) {
-      newSelected.delete(index)
+  const handleSelect = (result: SearchResult) => {
+    const isSelected = selectedResults.some(r => r.url === result.url)
+    if (isSelected) {
+      setSelectedResults(selectedResults.filter(r => r.url !== result.url))
     } else {
-      newSelected.add(index)
+      setSelectedResults([...selectedResults, result])
     }
-    setSelectedResults(newSelected)
+  }
+
+  const handleRemove = (result: SearchResult) => {
+    setSelectedResults(selectedResults.filter(r => r.url !== result.url))
   }
 
   const handleProcessSelected = () => {
-    if (selectedResults.size === 0) {
+    if (selectedResults.length === 0) {
       toast({
         title: "No results selected",
         description: "Please select at least one result to process",
@@ -44,8 +49,7 @@ export function SearchResults({ results, isLoading, onProcessSelected }: SearchR
       return
     }
 
-    const selected = Array.from(selectedResults).map(index => results[index])
-    onProcessSelected(selected)
+    onProcessSelected(selectedResults)
   }
 
   if (isLoading) {
@@ -67,25 +71,32 @@ export function SearchResults({ results, isLoading, onProcessSelected }: SearchR
 
   return (
     <div className="mt-4">
+      <h2 className="text-2xl font-bold mb-6">Research: {topic}</h2>
       <div className="flex justify-between items-center mb-4">
         <div className="text-sm text-muted-foreground">
-          {selectedResults.size} results selected
+          {selectedResults.length} results selected
         </div>
         <Button
           onClick={handleProcessSelected}
-          disabled={selectedResults.size === 0}
+          disabled={selectedResults.length === 0}
         >
           <FileText className="mr-2 h-4 w-4" />
           Process for Report
         </Button>
       </div>
-      <div className="space-y-4">
+
+      <SelectedResultsPanel
+        selectedResults={selectedResults}
+        onRemove={handleRemove}
+      />
+
+      <div className="space-y-4 mt-4">
         {results.map((result, index) => (
           <Card key={index} className="p-4">
             <div className="flex items-start gap-4">
               <Checkbox
-                checked={selectedResults.has(index)}
-                onCheckedChange={() => handleSelect(index)}
+                checked={selectedResults.some(r => r.url === result.url)}
+                onCheckedChange={() => handleSelect(result)}
                 className="mt-1"
               />
               <div className="flex-1">

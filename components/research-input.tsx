@@ -150,9 +150,13 @@ export function ResearchInput({
             onChange={(e) => onTopicChange(e.target.value)}
             placeholder="Enter a topic or market to research..."
             className="flex-1"
-            disabled={isLoading}
+            disabled={isLoading || isGeneratingOutline}
           />
-          <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
+          <Button 
+            type="submit" 
+            disabled={isLoading || isGeneratingOutline} 
+            className="w-full sm:w-auto"
+          >
             {isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -196,6 +200,7 @@ export function ResearchInput({
           results={searchResults}
           isLoading={isSearching}
           onProcessSelected={handleProcessSelected}
+          topic={topic}
         />
       )}
     </div>
