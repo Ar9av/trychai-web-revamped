@@ -23,22 +23,21 @@ export function ResearchSidebar() {
 
   const fetchCredits = async () => {
     try {
-        const response = await fetch(`/api/credits?userId=${session.user.id}`)
-        const data = await response.json()
-        if (response.ok) {
-            setCredits(data.totalCredits)
-        }
+      const response = await fetch(`/api/credits?userId=${session.user.id}`)
+      const data = await response.json()
+      if (response.ok) {
+        setCredits(data.totalCredits)
+      }
     } catch (error) {
-        console.error('Error fetching credits:', error)
+      console.error('Error fetching credits:', error)
     }
-}
+  }
 
-  // Fetch credits when the component mounts
   useEffect(() => {
     if (session.user) {
       fetchCredits()
     }
-  }, [session.user]) // Dependency array to re-fetch if session.user changes
+  }, [session.user])
 
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
@@ -49,7 +48,7 @@ export function ResearchSidebar() {
 
   return (
     <div className={cn(
-      "bg-card border-r transition-all duration-300",
+      "fixed top-14 left-0 h-[calc(100vh-3.5rem)] bg-card border-r transition-all duration-300",
       collapsed ? "w-16" : "w-64"
     )}>
       <div className="p-4 flex items-center justify-between">
@@ -98,7 +97,7 @@ export function ResearchSidebar() {
         })}
       </nav>
 
-      <nav className="space-y-2 space-x-2 p-4 absolute bottom-3">
+      <div className="absolute bottom-4 left-0 right-0 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-zinc-400">
             <Coins className="h-4 w-4" />
@@ -108,12 +107,15 @@ export function ResearchSidebar() {
           </div>
           <Link 
             href="/credits"
-            className="p-1 rounded-md text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100 transition-colors"
+            className={cn(
+              "p-1 rounded-md text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100 transition-colors",
+              collapsed && "opacity-0 w-0"
+            )}
           >
-            <PlusCircle className={cn("h-4 w-4", collapsed && "opacity-0 w-0")} />
+            <PlusCircle className="h-4 w-4" />
           </Link>
         </div>
-      </nav>
+      </div>
     </div>
   )
 }

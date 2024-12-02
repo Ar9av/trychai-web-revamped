@@ -20,12 +20,6 @@ export default function DashboardPage() {
   const [publicReports, setPublicReports] = useState<Report[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    if (userEmail) {
-      loadReports()
-    }
-  }, [userEmail])
-
   const loadReports = async () => {
     setIsLoading(true)
     try {
@@ -40,6 +34,12 @@ export default function DashboardPage() {
     }
   }
 
+  useEffect(() => {
+    if (userEmail) {
+      loadReports()
+    }
+  }, [userEmail])
+
   return (
     <div className="container py-8">
       <DashboardHeader />
@@ -47,6 +47,7 @@ export default function DashboardPage() {
         privateReports={privateReports}
         publicReports={publicReports}
         isLoading={isLoading}
+        onReportDeleted={loadReports}
       />
     </div>
   )

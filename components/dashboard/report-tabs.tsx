@@ -16,9 +16,10 @@ interface ReportTabsProps {
   privateReports: Report[]
   publicReports: Report[]
   isLoading: boolean
+  onReportDeleted?: () => void
 }
 
-export function ReportTabs({ privateReports, publicReports, isLoading }: ReportTabsProps) {
+export function ReportTabs({ privateReports, publicReports, isLoading, onReportDeleted }: ReportTabsProps) {
   const [filteredPrivate, setFilteredPrivate] = useState(privateReports)
   const [filteredPublic, setFilteredPublic] = useState(publicReports)
 
@@ -51,11 +52,20 @@ export function ReportTabs({ privateReports, publicReports, isLoading }: ReportT
       </TabsList>
       <TabsContent value="private">
         <ReportSearch onSearch={handlePrivateSearch} />
-        <ReportList reports={filteredPrivate} isLoading={isLoading} />
+        <ReportList 
+          reports={filteredPrivate} 
+          isLoading={isLoading} 
+          isPrivate={true}
+          onReportDeleted={onReportDeleted}
+        />
       </TabsContent>
       <TabsContent value="public">
         <ReportSearch onSearch={handlePublicSearch} />
-        <ReportList reports={filteredPublic} isLoading={isLoading} />
+        <ReportList 
+          reports={filteredPublic} 
+          isLoading={isLoading}
+          isPrivate={false}
+        />
       </TabsContent>
     </Tabs>
   )

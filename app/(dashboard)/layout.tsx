@@ -9,12 +9,12 @@ export default function DashboardLayout({
 }) {
   return (
     <ClerkProvider>
-    <div className="flex min-h-screen">
-      <ResearchSidebar />
-      <div className="flex-1 overflow-y-auto">
-        {children}
-      </div>
-      <Toaster position="right" />
+      <div className="flex min-h-screen">
+        <ResearchSidebar />
+        <div className="flex-1 ml-64 overflow-y-auto">
+          {children}
+        </div>
+        <Toaster position="right" />
       </div>
     </ClerkProvider>
   )

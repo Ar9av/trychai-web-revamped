@@ -1,5 +1,4 @@
 import { toast } from '@/components/ui/use-toast';
-// import { useClerk } from '@clerk/nextjs';
 
 interface ApiResponse<T> {
   data?: T;
@@ -52,7 +51,6 @@ export async function fetchReport(hash: string) {
   try {
     const response = await fetch(`/api/reports/${hash}`);
     const data = await handleApiResponse(response);
-    console.log("-->", data.data)
     return data.data;
   } catch (error) {
     console.error('Error fetching report:', error);
@@ -91,6 +89,31 @@ export async function saveReport(userEmail: string, hash: string, isPrivate: boo
   }
 }
 
+export async function deleteReport(userEmail: string, hash: string) {
+  try {
+    const response = await fetch('/api/reports/delete', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        user_email: userEmail,
+        md5_hash: hash,
+      }),
+    });
+    const data = await handleApiResponse(response);
+    return data.data;
+  } catch (error) {
+    console.error('Error deleting report:', error);
+    toast({
+      title: 'Error',
+      description: 'Failed to delete report',
+      variant: 'destructive',
+    });
+    return null;
+  }
+}
+
 export async function generateResearch(topic: string, outline?: string, persona?: string, user_email?: string) {
   try {
     const response = await fetch('/api/research', {
@@ -117,6 +140,7 @@ export async function generateResearch(topic: string, outline?: string, persona?
     return null;
   }
 }
+
 export async function fetchNews(hashtag: string, startDate?: string) {
   try {
     const params = new URLSearchParams({
@@ -124,7 +148,6 @@ export async function fetchNews(hashtag: string, startDate?: string) {
       ...(startDate && { startDate }),
     });
     
-    // Use a different fetch implementation to avoid encoding issues
     const response = await fetch(`/api/news?${params}`, {
       method: 'GET',
       headers: {
