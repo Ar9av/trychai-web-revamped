@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
-import { FileText } from "lucide-react"
+import { FileText, Loader2 } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { SelectedResultsPanel } from "./selected-results-panel"
 import { getStoredResults, storeResults } from "@/lib/storage-service"
@@ -16,10 +16,18 @@ interface SearchResultsProps {
   isLoading: boolean
   onProcessSelected: (selected: SearchResult[]) => void
   topic: string
+  showSearchResults?: boolean
 }
 
-export function SearchResults({ results, isLoading, onProcessSelected, topic }: SearchResultsProps) {
+export function SearchResults({ 
+  results, 
+  isLoading, 
+  onProcessSelected, 
+  topic,
+  showSearchResults = true 
+}: SearchResultsProps) {
   const [selectedResults, setSelectedResults] = useState<SearchResult[]>([])
+  const [isProcessing, setIsProcessing] = useState(false)
 
   // Load stored results on mount
   useEffect(() => {
@@ -47,7 +55,7 @@ export function SearchResults({ results, isLoading, onProcessSelected, topic }: 
     setSelectedResults(selectedResults.filter(r => r.url !== result.url))
   }
 
-  const handleProcessSelected = () => {
+  const handleProcessSelected = async () => {
     if (selectedResults.length === 0) {
       toast({
         title: "No results selected",
@@ -57,7 +65,12 @@ export function SearchResults({ results, isLoading, onProcessSelected, topic }: 
       return
     }
 
-    onProcessSelected(selectedResults)
+    setIsProcessing(true)
+    try {
+      await onProcessSelected(selectedResults)
+    } finally {
+      setIsProcessing(false)
+    }
   }
 
   if (isLoading) {
@@ -81,10 +94,19 @@ export function SearchResults({ results, isLoading, onProcessSelected, topic }: 
         </div>
         <Button
           onClick={handleProcessSelected}
-          disabled={selectedResults.length === 0}
+          disabled={selectedResults.length === 0 || isProcessing}
         >
-          <FileText className="mr-2 h-4 w-4" />
-          Process for Report
+          {isProcessing ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Processing...
+            </>
+          ) : (
+            <>
+              <FileText className="mr-2 h-4 w-4" />
+              Process for Report
+            </>
+          )}
         </Button>
       </div>
 
@@ -93,7 +115,7 @@ export function SearchResults({ results, isLoading, onProcessSelected, topic }: 
         onRemove={handleRemove}
       />
 
-      {results.length > 0 && (
+      {showSearchResults && results.length > 0 && (
         <div className="space-y-4 mt-4">
           {results.map((result, index) => (
             <Card key={index} className="p-4">

@@ -9,12 +9,13 @@ import { CreditCard, Gift } from "lucide-react"
 import { useClerk } from "@clerk/nextjs"
 import { fetchUserCredits } from "@/lib/api-service"
 import { toast } from "@/components/ui/use-toast"
+import { CreditHistory } from "@/components/credits/credit-history"
 
 export default function CreditsPage() {
   const { session } = useClerk();
   const userId = session?.user.id;
   const [couponCode, setCouponCode] = useState("")
-  const [credits, setCredits] = useState({ total: 0, history: [] })
+  const [credits, setCredits] = useState({ totalCredits: 0, history: [] })
   const [isLoading, setIsLoading] = useState(true)
   const [isApplying, setIsApplying] = useState(false)
 
@@ -131,7 +132,7 @@ export default function CreditsPage() {
         ))}
       </div>
 
-      <Card className="p-6">
+      <Card className="p-6 mb-8">
         <h2 className="text-xl font-semibold mb-4">Have a Coupon Code?</h2>
         <div className="flex gap-4">
           <div className="flex-1 space-y-2">
@@ -155,6 +156,8 @@ export default function CreditsPage() {
           </Button>
         </div>
       </Card>
+
+      <CreditHistory history={credits.history} isLoading={isLoading} />
     </div>
   )
 }

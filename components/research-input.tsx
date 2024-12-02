@@ -9,7 +9,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { generateResearch, searchTopic, type SearchResult } from "@/lib/api-service"
 import { AssistedToggle } from "./research/assisted-toggle"
 import { SearchResults } from "./research/search-results"
-import { OutlineEditor } from "./research/outline-editor"
+import { InstructionInput } from "./research/instruction-input"
 import {
   Tooltip,
   TooltipContent,
@@ -45,7 +45,8 @@ export function ResearchInput({
   const [isSearching, setIsSearching] = useState(false)
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [hasStartedResearch, setHasStartedResearch] = useState(false)
-  const [generatedOutline, setGeneratedOutline] = useState("")
+  const [selectedResults, setSelectedResults] = useState<SearchResult[]>([])
+  const [showSearchResults, setShowSearchResults] = useState(true)
   const router = useRouter()
   const { toast } = useToast()
 
@@ -116,40 +117,23 @@ export function ResearchInput({
   }
 
   const handleProcessSelected = async (selected: SearchResult[]) => {
-    try {
-      const response = await fetch('/api/outline', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          topic,
-          sources: selected,
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to generate outline')
-      }
-
-      const data = await response.json()
-      setGeneratedOutline(data.outline)
-    } catch (error) {
-      console.error('Error generating outline:', error)
-      toast({
-        title: "Error",
-        description: "Failed to generate outline. Please try again.",
-        variant: "destructive",
-      })
-    }
+    setSelectedResults(selected)
+    setShowSearchResults(false)
   }
 
-  const handleOutlineConfirm = async () => {
+  const handleInstructionSubmit = async (instruction: string) => {
     setIsLoading(true)
     try {
+      const payload = {
+        topic,
+        instruction,
+        sources: selectedResults,
+        persona: options?.persona
+      }
+
       const result = await generateResearch(
         topic.trim(),
-        generatedOutline,
+        JSON.stringify(payload),
         options?.persona,
         email,
         userId
@@ -229,19 +213,23 @@ export function ResearchInput({
             </div>
           ) : (
             <>
+              {selectedResults.length > 0 && (
+                <div className="mt-8">
+                  <InstructionInput
+                    selectedResults={selectedResults}
+                    topic={topic}
+                    onSubmit={handleInstructionSubmit}
+                    isLoading={isLoading}
+                  />
+                </div>
+              )}
               <SearchResults
                 results={searchResults}
                 isLoading={isSearching}
                 onProcessSelected={handleProcessSelected}
                 topic={topic}
+                showSearchResults={showSearchResults}
               />
-              {generatedOutline && (
-                <OutlineEditor
-                  outline={generatedOutline}
-                  onOutlineChange={setGeneratedOutline}
-                  onConfirm={handleOutlineConfirm}
-                />
-              )}
             </>
           )}
         </>
