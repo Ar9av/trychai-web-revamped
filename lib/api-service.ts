@@ -201,3 +201,29 @@ export async function fetchUserTags(userId: string) {
     return [];
   }
 }
+
+export async function generateOutline(topic: string, sources: Array<{ title: string, content: string }>) {
+  try {
+    const response = await fetch('/api/outline', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        topic,
+        sources,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to generate outline');
+    }
+
+    const data = await response.json();
+    return data.outline;
+  } catch (error) {
+    console.error('Error generating outline:', error);
+    throw error;
+  }
+}

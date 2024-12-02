@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Info, Loader2, Search } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
-import { generateResearch } from "@/lib/api-service"
+import { generateResearch, generateOutline } from "@/lib/api-service"
 import { searchTopic, type SearchResult } from "@/lib/exa-service"
 import { AssistedToggle } from "@/components/research/assisted-toggle"
 import { SearchResults } from "@/components/research/search-results"
+import { OutlineEditor } from "@/components/research/outline-editor"
 import {
   Tooltip,
   TooltipContent,
@@ -44,6 +45,8 @@ export function ResearchInput({
   const [isAssisted, setIsAssisted] = useState(false)
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [isSearching, setIsSearching] = useState(false)
+  const [outline, setOutline] = useState<string>("")
+  const [isGeneratingOutline, setIsGeneratingOutline] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
 
@@ -96,7 +99,7 @@ export function ResearchInput({
       }
 
       if (!result?.reportId) {
-        throw new Error('No report ID returned');
+        throw new Error('No report ID returned')
       }
 
       router.push(`/research/${result.reportId}`)
@@ -109,6 +112,29 @@ export function ResearchInput({
       })
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleProcessSelected = async (selected: SearchResult[]) => {
+    setIsGeneratingOutline(true)
+    try {
+      const generatedOutline = await generateOutline(
+        topic,
+        selected.map(result => ({
+          title: result.title,
+          content: result.content
+        }))
+      )
+      setOutline(generatedOutline)
+    } catch (error) {
+      console.error("Error generating outline:", error)
+      toast({
+        title: "Error",
+        description: "Failed to generate outline. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsGeneratingOutline(false)
     }
   }
 
@@ -157,10 +183,21 @@ export function ResearchInput({
         onToggle={setIsAssisted} 
       />
 
-      <SearchResults 
-        results={searchResults}
-        isLoading={isSearching}
-      />
+      {outline ? (
+        <OutlineEditor
+          outline={outline}
+          onOutlineChange={setOutline}
+          onConfirm={() => {
+            // Handle outline confirmation
+          }}
+        />
+      ) : (
+        <SearchResults 
+          results={searchResults}
+          isLoading={isSearching}
+          onProcessSelected={handleProcessSelected}
+        />
+      )}
     </div>
   )
 }
