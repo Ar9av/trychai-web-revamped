@@ -1,4 +1,5 @@
 import { toast } from '@/components/ui/use-toast';
+// import { useClerk } from '@clerk/nextjs';
 
 interface ApiResponse<T> {
   data?: T;
@@ -90,7 +91,7 @@ export async function saveReport(userEmail: string, hash: string, isPrivate: boo
   }
 }
 
-export async function generateResearch(topic: string, outline?: string, persona?: string) {
+export async function generateResearch(topic: string, outline?: string, persona?: string, user_email?: string) {
   try {
     const response = await fetch('/api/research', {
       method: 'POST',
@@ -98,9 +99,10 @@ export async function generateResearch(topic: string, outline?: string, persona?
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        topic,
-        outline,
-        persona,
+        topic: topic,
+        outline: outline,
+        persona: persona,
+        user_email: user_email,
       }),
     });
     const data = await handleApiResponse(response);

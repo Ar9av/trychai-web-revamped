@@ -21,7 +21,6 @@ export default function NewsPage() {
   const loadNews = async () => {
     setIsLoading(true)
     try {
-      console.log("fetching news")
       const data = await fetchNews('market_research', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
       
       if (Array.isArray(data) && data.length < 10) {

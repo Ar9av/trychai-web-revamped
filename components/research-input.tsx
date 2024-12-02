@@ -14,9 +14,11 @@ interface ResearchInputProps {
     outline: string
     persona: string
   }
+  email: string
 }
 
-export function ResearchInput({ onTopicSubmit, options }: ResearchInputProps) {
+export function ResearchInput({ onTopicSubmit, options, email }: ResearchInputProps) {
+  
   const [topic, setTopic] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -33,7 +35,8 @@ export function ResearchInput({ onTopicSubmit, options }: ResearchInputProps) {
       const result = await generateResearch(
         topic.trim(),
         options?.outline,
-        options?.persona
+        options?.persona,
+        email
       )
 
       if (!result?.reportId) {

@@ -17,8 +17,6 @@ interface Report {
 }
 
 export default function ResearchReportPage() {
-  const { session } = useClerk()
-  const userEmail = session?.user.emailAddresses[0].emailAddress
   const params = useParams()
   const [report, setReport] = useState<Report | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -32,7 +30,7 @@ export default function ResearchReportPage() {
         if (data) {
           setReport({
             title: data.title,
-            output: JSON.parse(data.output).content,
+            output: JSON.parse(data.output).summary,
             created_at: data.created_at
           })
         }
