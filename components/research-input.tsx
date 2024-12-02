@@ -28,6 +28,7 @@ interface ResearchInputProps {
   userId: string
   topic: string
   onTopicChange: (topic: string) => void
+  onHideOptions?: () => void
 }
 
 export function ResearchInput({ 
@@ -36,7 +37,8 @@ export function ResearchInput({
   email,
   userId,
   topic,
-  onTopicChange
+  onTopicChange,
+  onHideOptions
 }: ResearchInputProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [isAssisted, setIsAssisted] = useState(false)
@@ -51,6 +53,7 @@ export function ResearchInput({
 
     setIsLoading(true)
     onTopicSubmit(topic.trim())
+    onHideOptions?.()
 
     if (isAssisted) {
       setIsSearching(true)

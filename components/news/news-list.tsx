@@ -1,3 +1,5 @@
+"use client"
+
 import { Card } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { formatDistanceToNow } from "date-fns"
@@ -7,11 +9,12 @@ interface NewsItem {
   id: number
   hashtag: string
   date: string
-  news_json: {
-    title: string
-    content: string
-    source?: string
-  }
+  // news_json: {
+  title: string
+  content: string
+  source?: string
+  url?: string
+  // }
 }
 
 interface NewsListProps {
@@ -21,9 +24,17 @@ interface NewsListProps {
 
 export function NewsList({ news, isLoading }: NewsListProps) {
   if (isLoading) {
-    return <LoadingSkeleton />;
+    return <LoadingSkeleton />
   }
-  console.log("news", news);
+
+  const getDomainFromUrl = (url: string) => {
+    try {
+      const domain = new URL(url).hostname.replace('www.', '')
+      return domain
+    } catch {
+      return null
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -42,25 +53,32 @@ export function NewsList({ news, isLoading }: NewsListProps) {
             </p>
           )}
           <div className="flex justify-between items-center text-sm">
-            {item.source && (
-              <span className="text-muted-foreground">
-                Source: {item.source}
-              </span>
+            {item.url && (
+              <div className="flex items-center gap-2">
+                <img
+                  src={`https://www.google.com/s2/favicons?sz=64&domain=${getDomainFromUrl(item.url)}`}
+                  alt=""
+                  className="w-4 h-4"
+                />
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:underline"
+                >
+                  {getDomainFromUrl(item.url)}
+                </a>
+              </div>
             )}
             <span className="text-primary font-medium">{item.hashtag}</span>
           </div>
-          {item.publishedDate && (
-            <p className="text-sm text-muted-foreground">
-              <strong>Published Date:</strong> {new Date(item.publishedDate).toLocaleDateString()}
-            </p>
-          )}
-          {item.url && (
-            <p className="text-sm text-muted-foreground mt-2">
-              <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-blue-500">
-                Read more
-              </a>
-            </p>
-          )}
+          <div>
+            {item.publishedDate && (
+              <p className="text-sm text-muted-foreground mt-2">
+                <strong>Published Date:</strong> {new Date(item.publishedDate).toLocaleDateString()}
+              </p>
+            )}
+          </div>
         </Card>
       ))}
       {news.length === 0 && !isLoading && (
@@ -69,5 +87,5 @@ export function NewsList({ news, isLoading }: NewsListProps) {
         </Card>
       )}
     </div>
-  );
+  )
 }

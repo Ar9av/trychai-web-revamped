@@ -11,6 +11,7 @@ export default function DemoPage() {
   const user_email = session?.user?.emailAddresses[0].emailAddress
   const userId = session?.user?.id
   const [topic, setTopic] = useState("")
+  const [showOptions, setShowOptions] = useState(true)
   const [options, setOptions] = useState<OptionsType>({
     outline: "",
     persona: "",
@@ -34,9 +35,14 @@ export default function DemoPage() {
           userId={userId || ""}
           topic={topic}
           onTopicChange={setTopic}
+          onHideOptions={() => setShowOptions(false)}
         />
-        <ResearchOptions onOptionsChange={setOptions} />
-        <SuggestedReports onSelect={handleSuggestedTopicSelect} />
+        {showOptions && (
+          <>
+            <ResearchOptions onOptionsChange={setOptions} />
+            <SuggestedReports onSelect={handleSuggestedTopicSelect} />
+          </>
+        )}
       </div>
     </main>
   )

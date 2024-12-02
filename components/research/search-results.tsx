@@ -34,8 +34,8 @@ export function SearchResults({ results, isLoading }: SearchResultsProps) {
   }
 
   return (
-    <ScrollArea className="mt-4 h-[400px]">
-      <div className="space-y-4 pr-4">
+    // <ScrollArea className="mt-4 h-[400px]">
+      <div className="space-y-4 pr-4 py-6">
         {results.map((result, index) => (
           <Card key={index} className="p-4">
             <div className="flex items-center gap-2 mb-2">
@@ -58,6 +58,6 @@ export function SearchResults({ results, isLoading }: SearchResultsProps) {
           </Card>
         ))}
       </div>
-    </ScrollArea>
+    // </ScrollArea>
   )
 }
