@@ -49,14 +49,9 @@ export function NewsList({ news, isLoading }: NewsListProps) {
             )}
             <span className="text-primary font-medium">{item.hashtag}</span>
           </div>
-          {item.author && (
-            <p className="text-sm text-muted-foreground mt-4">
-              <strong>Author:</strong> {item.author}
-            </p>
-          )}
           {item.publishedDate && (
             <p className="text-sm text-muted-foreground">
-              <strong>Published Date:</strong> {new Date(item.publishedDate).toLocaleString()}
+              <strong>Published Date:</strong> {new Date(item.publishedDate).toLocaleDateString()}
             </p>
           )}
           {item.url && (

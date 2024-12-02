@@ -29,7 +29,6 @@ export async function GET(req) {
         created_at: 'desc'
       }
     });
-    console.log("recentNews", recentNews)
     if (recentNews) {
       return NextResponse.json(recentNews.news_json);
     }
