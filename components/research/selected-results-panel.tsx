@@ -6,13 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { X, ChevronDown, ChevronUp } from "lucide-react"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
-
-interface SearchResult {
-  title: string
-  url: string
-  content: string
-  domain: string
-}
+import { SearchResult } from "@/lib/api-service"
 
 interface SelectedResultsPanelProps {
   selectedResults: SearchResult[]
@@ -20,7 +14,7 @@ interface SelectedResultsPanelProps {
 }
 
 export function SelectedResultsPanel({ selectedResults, onRemove }: SelectedResultsPanelProps) {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(true)
 
   if (selectedResults.length === 0) return null
 

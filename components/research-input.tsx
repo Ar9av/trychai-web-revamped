@@ -6,11 +6,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Info, Loader2, Search } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
-import { generateResearch, generateOutline } from "@/lib/api-service"
-import { searchTopic, type SearchResult } from "@/lib/exa-service"
-import { AssistedToggle } from "@/components/research/assisted-toggle"
-import { SearchResults } from "@/components/research/search-results"
-import { OutlineEditor } from "@/components/research/outline-editor"
+import { generateResearch, searchTopic, type SearchResult } from "@/lib/api-service"
+import { AssistedToggle } from "./research/assisted-toggle"
+import { SearchResults } from "./research/search-results"
+import { OutlineEditor } from "./research/outline-editor"
 import {
   Tooltip,
   TooltipContent,
@@ -43,10 +42,10 @@ export function ResearchInput({
 }: ResearchInputProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [isAssisted, setIsAssisted] = useState(false)
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [isSearching, setIsSearching] = useState(false)
-  const [outline, setOutline] = useState<string>("")
-  const [isGeneratingOutline, setIsGeneratingOutline] = useState(false)
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([])
+  const [hasStartedResearch, setHasStartedResearch] = useState(false)
+  const [generatedOutline, setGeneratedOutline] = useState("")
   const router = useRouter()
   const { toast } = useToast()
 
@@ -57,6 +56,7 @@ export function ResearchInput({
     setIsLoading(true)
     onTopicSubmit(topic.trim())
     onHideOptions?.()
+    setHasStartedResearch(true)
 
     if (isAssisted) {
       setIsSearching(true)
@@ -116,93 +116,135 @@ export function ResearchInput({
   }
 
   const handleProcessSelected = async (selected: SearchResult[]) => {
-    setIsGeneratingOutline(true)
     try {
-      const generatedOutline = await generateOutline(
-        topic,
-        selected.map(result => ({
-          title: result.title,
-          content: result.content
-        }))
-      )
-      setOutline(generatedOutline)
+      const response = await fetch('/api/outline', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          topic,
+          sources: selected,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to generate outline')
+      }
+
+      const data = await response.json()
+      setGeneratedOutline(data.outline)
     } catch (error) {
-      console.error("Error generating outline:", error)
+      console.error('Error generating outline:', error)
       toast({
         title: "Error",
         description: "Failed to generate outline. Please try again.",
         variant: "destructive",
       })
+    }
+  }
+
+  const handleOutlineConfirm = async () => {
+    setIsLoading(true)
+    try {
+      const result = await generateResearch(
+        topic.trim(),
+        generatedOutline,
+        options?.persona,
+        email,
+        userId
+      )
+
+      if (!result?.reportId) {
+        throw new Error('No report ID returned')
+      }
+
+      router.push(`/research/${result.reportId}`)
+    } catch (error) {
+      console.error("Error generating report:", error)
+      toast({
+        title: "Error",
+        description: "Failed to generate research report. Please try again.",
+        variant: "destructive",
+      })
     } finally {
-      setIsGeneratingOutline(false)
+      setIsLoading(false)
     }
   }
 
   return (
     <div>
       <h1 className="text-3xl font-bold text-center mb-8">
-        What would you like to research?
+        {hasStartedResearch ? `Research: ${topic}` : "What would you like to research?"}
       </h1>
-      <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
-        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 flex-1">
+      
+      {hasStartedResearch && isAssisted && (
+        <p className="text-center text-sm text-muted-foreground mb-4">
+          Search for more sources
+        </p>
+      )}
+
+      <div className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
           <Input
             value={topic}
             onChange={(e) => onTopicChange(e.target.value)}
             placeholder="Enter a topic or market to research..."
             className="flex-1"
-            disabled={isLoading || isGeneratingOutline}
+            disabled={isLoading}
           />
           <Button 
             type="submit" 
-            disabled={isLoading || isGeneratingOutline} 
+            disabled={isLoading}
             className="w-full sm:w-auto"
           >
             {isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                {isAssisted ? "Searching..." : "Generating..."}
+                Generating...
               </>
             ) : (
               <>
                 <Search className="h-4 w-4 mr-2" />
-                {isAssisted ? "Search" : "Research"}
+                Research
               </>
             )}
           </Button>
         </form>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              <Info className="h-4 w-4 text-muted-foreground hidden sm:block" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Generating a new report costs 50 credits</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+
+        {!hasStartedResearch && (
+          <AssistedToggle
+            enabled={isAssisted}
+            onToggle={setIsAssisted}
+          />
+        )}
       </div>
 
-      <AssistedToggle 
-        enabled={isAssisted} 
-        onToggle={setIsAssisted} 
-      />
-
-      {outline ? (
-        <OutlineEditor
-          outline={outline}
-          onOutlineChange={setOutline}
-          onConfirm={() => {
-            // Handle outline confirmation
-          }}
-        />
-      ) : (
-        <SearchResults 
-          results={searchResults}
-          isLoading={isSearching}
-          onProcessSelected={handleProcessSelected}
-          topic={topic}
-          isAssisted={isAssisted}
-        />
+      {isAssisted && (
+        <>
+          {isSearching ? (
+            <div className="mt-8 text-center">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+              <p>Searching for relevant content...</p>
+            </div>
+          ) : (
+            <>
+              <SearchResults
+                results={searchResults}
+                isLoading={isSearching}
+                onProcessSelected={handleProcessSelected}
+                topic={topic}
+              />
+              {generatedOutline && (
+                <OutlineEditor
+                  outline={generatedOutline}
+                  onOutlineChange={setGeneratedOutline}
+                  onConfirm={handleOutlineConfirm}
+                />
+              )}
+            </>
+          )}
+        </>
       )}
     </div>
   )

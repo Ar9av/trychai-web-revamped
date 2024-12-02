@@ -5,6 +5,13 @@ interface ApiResponse<T> {
   error?: string;
 }
 
+export interface SearchResult {
+  title: string;
+  url: string;
+  content: string;
+  domain: string;
+}
+
 async function handleApiResponse<T>(response: Response): Promise<ApiResponse<T>> {
   if (!response.ok) {
     const error = await response.json();
@@ -130,7 +137,6 @@ export async function generateResearch(topic: string, outline?: string, persona?
       }),
     });
     const data = await handleApiResponse(response);
-    console.log("data:", data)
     return data.data;
   } catch (error) {
     console.error('Error generating research:', error);
@@ -140,6 +146,27 @@ export async function generateResearch(topic: string, outline?: string, persona?
       variant: 'destructive',
     });
     return null;
+  }
+}
+
+export async function searchTopic(topic: string, startDate?: string): Promise<SearchResult[]> {
+  try {
+    const params = new URLSearchParams({
+      topic,
+      ...(startDate && { startDate })
+    });
+    
+    const response = await fetch(`/api/searchRes?${params}`);
+    const data = await handleApiResponse<SearchResult[]>(response);
+    return data.data || [];
+  } catch (error) {
+    console.error('Error searching topic:', error);
+    toast({
+      title: 'Error',
+      description: 'Failed to search topic',
+      variant: 'destructive',
+    });
+    return [];
   }
 }
 
@@ -199,31 +226,5 @@ export async function fetchUserTags(userId: string) {
       variant: 'destructive',
     });
     return [];
-  }
-}
-
-export async function generateOutline(topic: string, sources: Array<{ title: string, content: string }>) {
-  try {
-    const response = await fetch('/api/outline', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        topic,
-        sources,
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to generate outline');
-    }
-
-    const data = await response.json();
-    return data.outline;
-  } catch (error) {
-    console.error('Error generating outline:', error);
-    throw error;
   }
 }

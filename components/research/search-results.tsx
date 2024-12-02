@@ -9,17 +9,16 @@ import { FileText } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { SelectedResultsPanel } from "./selected-results-panel"
 import { getStoredResults, storeResults } from "@/lib/storage-service"
-import { SearchResult } from "@/lib/exa-service"
+import { SearchResult } from "@/lib/api-service"
 
 interface SearchResultsProps {
   results: SearchResult[]
   isLoading: boolean
   onProcessSelected: (selected: SearchResult[]) => void
   topic: string
-  isAssisted: boolean
 }
 
-export function SearchResults({ results, isLoading, onProcessSelected, topic, isAssisted }: SearchResultsProps) {
+export function SearchResults({ results, isLoading, onProcessSelected, topic }: SearchResultsProps) {
   const [selectedResults, setSelectedResults] = useState<SearchResult[]>([])
 
   // Load stored results on mount
@@ -76,20 +75,18 @@ export function SearchResults({ results, isLoading, onProcessSelected, topic, is
 
   return (
     <div className="mt-4">
-      {isAssisted && (
-        <div className="flex justify-between items-center mb-4">
-          <div className="text-sm text-muted-foreground">
-            {selectedResults.length} results selected
-          </div>
-          <Button
-            onClick={handleProcessSelected}
-            disabled={selectedResults.length === 0}
-          >
-            <FileText className="mr-2 h-4 w-4" />
-            Process for Report
-          </Button>
+      <div className="flex justify-between items-center mb-4">
+        <div className="text-sm text-muted-foreground">
+          {selectedResults.length} results selected
         </div>
-      )}
+        <Button
+          onClick={handleProcessSelected}
+          disabled={selectedResults.length === 0}
+        >
+          <FileText className="mr-2 h-4 w-4" />
+          Process for Report
+        </Button>
+      </div>
 
       <SelectedResultsPanel
         selectedResults={selectedResults}
