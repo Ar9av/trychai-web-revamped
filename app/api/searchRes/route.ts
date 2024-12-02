@@ -1,9 +1,6 @@
 import { NextResponse } from 'next/server';
-import Exa from 'exa-js';
-import prisma from '@/lib/prisma';
-import crypto from 'crypto';
-
-const exa = new Exa(process.env.NEXT_PUBLIC_EXA_API_KEY);
+import { getCachedExaSearch, cacheExaSearch } from '@/lib/cache/exa-cache';
+import { performExaSearch } from '@/lib/search/exa-search';
 
 export async function GET(req: Request) {
   try {
@@ -18,52 +15,24 @@ export async function GET(req: Request) {
       );
     }
 
-    // Generate MD5 hash of the search parameters
-    const payloadHash = crypto
-      .createHash('md5')
-      .update(JSON.stringify({ topic, startDate }))
-      .digest('hex');
+    const searchPayload = {
+      topic,
+      ...(startDate && { startDate })
+    };
 
-    // Check cache
-    const cached = await prisma.exa_responses.findUnique({
-      where: { payload_md5: payloadHash }
-    });
-
-    if (cached) {
-      return NextResponse.json(cached.response_json);
+    // Try to get cached results first
+    const cachedResults = await getCachedExaSearch(searchPayload);
+    if (cachedResults) {
+      return NextResponse.json(cachedResults);
     }
 
-    // Perform search
-    console.log("searching", topic, startDate);
-    const result = await exa.searchAndContents(
-      topic,
-      {
-        type: "auto",
-        useAutoprompt: true,
-        numResults: 20,
-        summary: true,
-        ...(startDate && { startPublishedDate: startDate })
-      }
-    );
+    // If no cache hit, perform the search
+    const results = await performExaSearch(searchPayload);
 
-    // Process results
-    const processedResults = result.results.map(item => ({
-      title: item.title || "",
-      url: item.url || "",
-      content: item.summary || item.content || "",
-      domain: new URL(item.url).hostname.replace('www.', '')
-    }));
+    // Cache the results for future use
+    await cacheExaSearch(searchPayload, results);
 
-    // Cache results
-    await prisma.exa_responses.create({
-      data: {
-        payload_md5: payloadHash,
-        payload_json: { topic, startDate },
-        response_json: processedResults
-      }
-    });
-
-    return NextResponse.json(processedResults);
+    return NextResponse.json(results);
   } catch (error) {
     console.error('Error searching topic:', error);
     return NextResponse.json(
