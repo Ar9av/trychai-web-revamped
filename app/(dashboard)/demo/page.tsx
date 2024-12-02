@@ -9,6 +9,7 @@ import { useClerk } from "@clerk/nextjs"
 export default function DemoPage() {
   const { session } = useClerk()
   const user_email = session?.user?.emailAddresses[0].emailAddress
+  const userId = session?.user?.id
   const [topic, setTopic] = useState("")
   const [options, setOptions] = useState<OptionsType>({
     outline: "",
@@ -30,6 +31,7 @@ export default function DemoPage() {
           onTopicSubmit={handleTopicSubmit} 
           options={options} 
           email={user_email || ""} 
+          userId={userId || ""}
           topic={topic}
           onTopicChange={setTopic}
         />

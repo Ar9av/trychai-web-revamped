@@ -21,6 +21,7 @@ interface ResearchInputProps {
     persona: string
   }
   email: string
+  userId: string
   topic: string
   onTopicChange: (topic: string) => void
 }
@@ -29,6 +30,7 @@ export function ResearchInput({
   onTopicSubmit, 
   options, 
   email,
+  userId,
   topic,
   onTopicChange
 }: ResearchInputProps) {
@@ -48,7 +50,8 @@ export function ResearchInput({
         topic.trim(),
         options?.outline,
         options?.persona,
-        email
+        email,
+        userId
       )
 
       if (result?.error === 'Insufficient credits') {

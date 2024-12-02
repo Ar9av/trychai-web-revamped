@@ -7,20 +7,21 @@ const REPORT_COST = 50;
 
 export async function POST(req: Request) {
   try {
-    const { topic, outline, persona, user_email } = await req.json();
+    const { topic, outline, persona, user_email, user_id } = await req.json();
     if (!topic) {
       return NextResponse.json({ error: 'Topic is required' }, { status: 400 });
     }
 
     // Check user credits
     const history = await prisma.credit_history.findMany({
-      where: { user_id: user_email }
+      where: { user_id: user_id }
     });
+    console.log("history:", history)
 
     const totalCredits = history.reduce((total, record) => {
       return total + (record.type === 'credit' ? record.value : -record.value);
     }, 0);
-
+    console.log("totalCredits:", totalCredits)
     if (totalCredits < REPORT_COST) {
       return NextResponse.json({ 
         error: 'Insufficient credits',

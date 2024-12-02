@@ -1,7 +1,10 @@
-import OpenAI from 'openai';
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+import { AzureOpenAI } from 'openai';
+const deployment = process.env.AZURE_OPENAI_MODEL;
+const openai = new AzureOpenAI({
+  apiKey: process.env.AZURE_OPENAI_API_KEY,
+  endpoint: process.env.AZURE_API_BASE,
+  apiVersion: process.env.AZURE_API_VERSION,
+  deployment: deployment || "",
 });
 
 export async function generateResearchReport(topic: string, outline: string = "", persona: string = "") {
@@ -11,7 +14,7 @@ export async function generateResearchReport(topic: string, outline: string = ""
     ${persona ? `Target audience persona:\n${persona}` : ''}`;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: deployment || "",
       messages: [
         {
           role: "system",
