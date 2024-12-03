@@ -26,6 +26,7 @@ export function Navbar() {
               width={32} 
               height={32} 
               className={`${isDarkTheme ? 'filter invert' : undefined}`}
+              onError={(e) => { e.currentTarget.src = '/favicon.ico'; }} // Fallback image
             />
             <span className="font-bold">Trychai</span>
           </Link>

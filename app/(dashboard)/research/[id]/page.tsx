@@ -27,14 +27,14 @@ export default function ResearchReportPage() {
   
   const CustomHeader = (props: any) => (
     <header style={{ fontSize: '25px', padding: '10px 0' }}>
-      <hr style={{ border: '1px solid white', margin: '20px 0' }} />
+      {/* <hr style={{ border: '1px solid white', margin: '20px 0' }} /> */}
       {props.children}
     </header>
   );
   
   const CustomH1 = (props: any) => (
     <header style={{ fontSize: '35px', padding: '20px 0', fontWeight: 'bold' }}>
-      <hr style={{ border: '1px solid white', margin: '20px 0' }} />
+      {/* <hr style={{ border: '1px solid white', margin: '20px 0' }} /> */}
       {props.children}
     </header>
   );
