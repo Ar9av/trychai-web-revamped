@@ -9,14 +9,24 @@ import { SignedOut } from "@clerk/nextjs"
 import { Brain } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { useTheme } from "next-themes"
+
 export function Navbar() {
+  const { theme } = useTheme();
+  const isDarkTheme = theme === "dark";
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <nav className="container mx-auto flex h-14 items-center justify-between">
         <div className="hidden md:flex">
           <Link href="/" className="flex items-center space-x-2">
-            {/* <Brain className="h-6 w-6" /> */}
-            <Image src="/favicon.ico" alt="Trychai Logo" width={32} height={32} className="filter invert" />
+            <Image 
+              src="/favicon.ico" 
+              alt="Trychai Logo" 
+              width={32} 
+              height={32} 
+              className={`${isDarkTheme ? 'filter invert' : undefined}`}
+            />
             <span className="font-bold">Trychai</span>
           </Link>
         </div>
