@@ -63,7 +63,7 @@ export function HeroSection() {
     "E-commerce Evolution"
   ];
   return (
-    <section className="w-full md:py-12 lg:py-12 xl:py-48 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
+    <section className="w-full md:py-12 lg:py-12 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
       <div className="container px-4 md:px-6">
       <WavyBackground className="max-w-4xl mx-auto">
         <div className="flex flex-col items-center space-y-4 text-center py-8">
