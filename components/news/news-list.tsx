@@ -35,7 +35,8 @@ export function NewsList({ news, isLoading }: NewsListProps) {
       title: item.title,
       url: item.url,
       content: item.summary || item.content,
-      domain: getDomainFromUrl(item.url) || ""
+      domain: getDomainFromUrl(item.url) || "",
+      published_date: item.publishedDate || ""
     }
 
     const currentSources = getStoredResults()
