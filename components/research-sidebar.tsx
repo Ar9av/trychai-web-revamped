@@ -8,7 +8,8 @@ import {
   CreditCard,
   ChevronLeft,
   Coins,
-  Menu
+  Menu,
+  Bookmark
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
@@ -18,7 +19,6 @@ import { useClerk } from "@clerk/nextjs"
 import { fetchUserCredits } from "@/lib/api-service"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
-// Define an interface for the expected response
 interface UserCreditsResponse {
   totalCredits: number;
 }
@@ -65,6 +65,7 @@ export function ResearchSidebar() {
     { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
     { icon: PlusCircle, label: "New Report", href: "/demo" },
     { icon: Newspaper, label: "News Feed", href: "/news" },
+    { icon: Bookmark, label: "Saved Articles", href: "/saved" },
     { icon: CreditCard, label: "Credits", href: "/credits" },
   ]
 

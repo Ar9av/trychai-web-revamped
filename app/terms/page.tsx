@@ -34,7 +34,7 @@ export default function TermsPage() {
   
           <h2 className="text-2xl font-semibold">5. Limitation of Liability</h2>
           <p>
-            TrychAI is provided "as is" without any warranties. We shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of the service.
+            TrychAI is provided &quot;as is&quot; without any warranties. We shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of the service.
           </p>
   
           <h2 className="text-2xl font-semibold">6. Changes to Terms</h2>

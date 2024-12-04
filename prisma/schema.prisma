@@ -74,9 +74,23 @@ model user_tags {
 }
 
 model exa_responses {
-  id           Int      @id @default(autoincrement())
-  payload_md5  String   @unique
-  payload_json Json
+  id            Int      @id @default(autoincrement())
+  payload_md5   String   @unique
+  payload_json  Json
   response_json Json
-  created_at   DateTime @default(now())
+  created_at    DateTime @default(now())
+}
+
+model saved_articles {
+  id          Int      @id @default(autoincrement())
+  user_id     String   @db.VarChar(255)
+  title       String
+  url         String
+  content     String   @db.Text
+  domain      String
+  created_at  DateTime @default(now())
+  source_type String   @default("news") // "news" or "research"
+
+  @@index([user_id])
+  @@unique([user_id, url])
 }

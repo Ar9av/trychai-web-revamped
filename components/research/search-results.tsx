@@ -1,16 +1,17 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { format } from 'date-fns'  // Import date-fns for date formatting
+import { format } from 'date-fns'
 import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
-import { FileText, Loader2 } from "lucide-react"
+import { FileText, Loader2, Bookmark, BookmarkCheck } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { SelectedResultsPanel } from "./selected-results-panel"
 import { getStoredResults, storeResults } from "@/lib/storage-service"
 import { SearchResult } from "@/lib/api-service"
+import { useClerk } from "@clerk/nextjs"
 
 interface SearchResultsProps {
   results: SearchResult[]
@@ -21,7 +22,7 @@ interface SearchResultsProps {
 }
 
 const formatDate = (date: string) => {
-  return format(new Date(date), 'MMMM dd, yyyy') // Format the date
+  return format(new Date(date), 'MMMM dd, yyyy')
 }
 
 export function SearchResults({ 
@@ -33,11 +34,26 @@ export function SearchResults({
 }: SearchResultsProps) {
   const [selectedResults, setSelectedResults] = useState<SearchResult[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
+  const { session } = useClerk()
+  const userId = session?.user.id
+  const [savedArticles, setSavedArticles] = useState<Set<string>>(new Set())
 
-  // Load stored results on mount only
   useEffect(() => {
     setSelectedResults(getStoredResults())
-  }, [])
+    if (userId) {
+      loadSavedArticles()
+    }
+  }, [userId])
+
+  const loadSavedArticles = async () => {
+    try {
+      const response = await fetch(`/api/saved-articles?userId=${userId}`)
+      const data = await response.json()
+      setSavedArticles(new Set(data.articles.map((article: any) => article.url)))
+    } catch (error) {
+      console.error('Error loading saved articles:', error)
+    }
+  }
 
   const handleSelect = (result: SearchResult) => {
     const isSelected = selectedResults.some(r => r.url === result.url)
@@ -47,7 +63,6 @@ export function SearchResults({
 
     setSelectedResults(newResults)
     storeResults(newResults)
-    // Dispatch event after storing
     window.dispatchEvent(new Event('sourcesUpdated'))
   }
 
@@ -55,7 +70,6 @@ export function SearchResults({
     const newResults = selectedResults.filter(r => r.url !== result.url)
     setSelectedResults(newResults)
     storeResults(newResults)
-    // Dispatch event after storing
     window.dispatchEvent(new Event('sourcesUpdated'))
   }
 
@@ -74,6 +88,44 @@ export function SearchResults({
       await onProcessSelected(selectedResults)
     } finally {
       setIsProcessing(false)
+    }
+  }
+
+  const handleSaveArticle = async (result: SearchResult) => {
+    if (!userId) return
+
+    try {
+      const response = await fetch('/api/saved-articles', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          title: result.title,
+          url: result.url,
+          content: result.content,
+          domain: result.domain,
+          sourceType: 'research'
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error)
+      }
+
+      setSavedArticles(prev => new Set([...Array.from(prev), result.url]))
+      toast({
+        title: "Success",
+        description: "Article saved successfully",
+      })
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to save article",
+        variant: "destructive",
+      })
     }
   }
 
@@ -130,20 +182,35 @@ export function SearchResults({
                   className="mt-1"
                 />
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <img
-                      src={`https://www.google.com/s2/favicons?sz=64&domain=${result.domain}`}
-                      alt={result.domain}
-                      className="w-4 h-4"
-                    />
-                    <a
-                      href={result.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-muted-foreground hover:underline"
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={`https://www.google.com/s2/favicons?sz=64&domain=${result.domain}`}
+                        alt={result.domain}
+                        className="w-4 h-4"
+                      />
+                      <a
+                        href={result.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-muted-foreground hover:underline"
+                      >
+                        {result.domain}
+                      </a>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleSaveArticle(result)}
+                      disabled={savedArticles.has(result.url)}
+                      title={savedArticles.has(result.url) ? "Already saved" : "Save article"}
                     >
-                      {result.domain}
-                    </a>
+                      {savedArticles.has(result.url) ? (
+                        <BookmarkCheck className="h-4 w-4 text-primary" />
+                      ) : (
+                        <Bookmark className="h-4 w-4" />
+                      )}
+                    </Button>
                   </div>
                   <h3 className="font-medium mb-2">{result.title}</h3>
                   <p className="text-sm text-muted-foreground">{result.content}</p>

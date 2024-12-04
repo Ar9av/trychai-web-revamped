@@ -7,7 +7,7 @@ export default function LegalPage() {
           <section>
             <h2 className="text-2xl font-semibold">Company Information</h2>
             <p>
-              TrychAI is operated by TrychAI, Inc. ("we," "us," or "our"), a company dedicated to providing innovative AI-powered market research solutions.
+              TrychAI is operated by TrychAI, Inc. (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;), a company dedicated to providing innovative AI-powered market research solutions.
             </p>
           </section>
   

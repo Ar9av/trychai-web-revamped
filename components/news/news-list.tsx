@@ -5,10 +5,12 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { formatDistanceToNow } from "date-fns"
 import LoadingSkeleton from "@/components/ui/loading-skeleton"
 import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
+import { Plus, Bookmark, BookmarkCheck } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { getStoredResults, storeResults } from "@/lib/storage-service"
 import { SearchResult } from "@/lib/api-service"
+import { useClerk } from "@clerk/nextjs"
+import { useState, useEffect } from "react"
 
 interface NewsItem {
   id: number
@@ -28,6 +30,25 @@ interface NewsListProps {
 }
 
 export function NewsList({ news, isLoading }: NewsListProps) {
+  const { session } = useClerk()
+  const userId = session?.user.id
+  const [savedArticles, setSavedArticles] = useState<Set<string>>(new Set())
+
+  useEffect(() => {
+    loadSavedArticles()
+  }, [userId])
+
+  const loadSavedArticles = async () => {
+    if (!userId) return
+    try {
+      const response = await fetch(`/api/saved-articles?userId=${userId}`)
+      const data = await response.json()
+      setSavedArticles(new Set(data.articles.map((article: any) => article.url)))
+    } catch (error) {
+      console.error('Error loading saved articles:', error)
+    }
+  }
+
   const handleAddToSources = (item: NewsItem) => {
     if (!item.url) return
 
@@ -41,7 +62,6 @@ export function NewsList({ news, isLoading }: NewsListProps) {
 
     const currentSources = getStoredResults()
     
-    // Check if source already exists
     if (currentSources.some(source => source.url === newSource.url)) {
       toast({
         title: "Already added",
@@ -50,7 +70,6 @@ export function NewsList({ news, isLoading }: NewsListProps) {
       return
     }
 
-    // Add new source
     const updatedSources = [...currentSources, newSource]
     storeResults(updatedSources)
 
@@ -58,6 +77,44 @@ export function NewsList({ news, isLoading }: NewsListProps) {
       title: "Source added",
       description: "The source has been added to your selected sources",
     })
+  }
+
+  const handleSaveArticle = async (item: NewsItem) => {
+    if (!userId || !item.url) return
+
+    try {
+      const response = await fetch('/api/saved-articles', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          title: item.title,
+          url: item.url,
+          content: item.summary || item.content,
+          domain: getDomainFromUrl(item.url),
+          sourceType: 'news'
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error)
+      }
+
+      setSavedArticles(prev => new Set([...Array.from(prev), item.url!]))
+      toast({
+        title: "Success",
+        description: "Article saved successfully",
+      })
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to save article",
+        variant: "destructive",
+      })
+    }
   }
 
   if (isLoading) {
@@ -79,16 +136,31 @@ export function NewsList({ news, isLoading }: NewsListProps) {
         <Card key={item.id} className="p-6">
           <div className="flex justify-between items-start mb-2">
             <h2 className="text-xl font-semibold">{item.title}</h2>
-            {item.url && (
+            <div className="flex gap-2">
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => handleAddToSources(item)}
-                title="Add to selected sources"
+                onClick={() => handleSaveArticle(item)}
+                disabled={!item.url || savedArticles.has(item.url)}
+                title={savedArticles.has(item.url!) ? "Already saved" : "Save article"}
               >
-                <Plus className="h-4 w-4" />
+                {savedArticles.has(item.url!) ? (
+                  <BookmarkCheck className="h-4 w-4 text-primary" />
+                ) : (
+                  <Bookmark className="h-4 w-4" />
+                )}
               </Button>
-            )}
+              {item.url && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleAddToSources(item)}
+                  title="Add to selected sources"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           </div>
           <div className="text-sm text-muted-foreground">
             {item.date ? formatDistanceToNow(new Date(item.date), { addSuffix: true }) : null}
