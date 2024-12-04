@@ -56,6 +56,7 @@ export function ResearchInput({
   const [isSearching, setIsSearching] = useState(false)
   const [searchResults, setSearchResults] = useState<SearchResult[]>([])
   const [hasStartedResearch, setHasStartedResearch] = useState(false)
+  const [title, setTitle] = useState(topic)
   const [selectedResults, setSelectedResults] = useState<SearchResult[]>([])
   const [showSearchResults, setShowSearchResults] = useState(true)
   const [options, setOptions] = useState<OptionsType>({
@@ -64,6 +65,10 @@ export function ResearchInput({
   })
   const router = useRouter()
   const { toast } = useToast()
+
+  const handleTitleChange = (newTitle: string) => {
+        setTitle(newTitle)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -175,7 +180,7 @@ export function ResearchInput({
       <div className="space-y-4">
         <div className="flex flex-col space-y-2">
           <h1 className="text-3xl font-bold text-center mb-8">
-            {hasStartedResearch ? `Research: ${topic}` : "What would you like to research?"}
+            {hasStartedResearch ? `Research: ${title}` : "What would you like to research?"}
           </h1>
           
           {hasStartedResearch && isAssisted && (
