@@ -11,6 +11,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useTheme } from "next-themes"
 import { SelectedSourcesDropdown } from "./navbar/selected-sources-dropdown"
+
 export function Navbar() {
   const { theme } = useTheme();
   const isDarkTheme = theme === "dark";
@@ -32,7 +33,9 @@ export function Navbar() {
           </Link>
         </div>
         <div className="flex items-center space-x-4 ml-auto">
-          <SelectedSourcesDropdown />
+          <SignedIn>
+            <SelectedSourcesDropdown />
+          </SignedIn>
           <ModeToggle />
           <SignedOut>
             <SignInButton />

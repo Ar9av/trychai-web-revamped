@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { format } from 'date-fns'  // Import date-fns for date formatting
 import { Card } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -19,6 +20,10 @@ interface SearchResultsProps {
   showSearchResults?: boolean
 }
 
+const formatDate = (date: string) => {
+  return format(new Date(date), 'MMMM dd, yyyy') // Format the date
+}
+
 export function SearchResults({ 
   results, 
   isLoading, 
@@ -26,6 +31,7 @@ export function SearchResults({
   topic,
   showSearchResults = true 
 }: SearchResultsProps) {
+  console.log("results", results)
   const [selectedResults, setSelectedResults] = useState<SearchResult[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
 
@@ -39,7 +45,7 @@ export function SearchResults({
     const newResults = isSelected
       ? selectedResults.filter(r => r.url !== result.url)
       : [...selectedResults, result]
-    
+
     setSelectedResults(newResults)
     storeResults(newResults)
     // Dispatch event after storing
@@ -103,7 +109,7 @@ export function SearchResults({
           ) : (
             <>
               <FileText className="mr-2 h-4 w-4" />
-              Process for Report
+              Proceed
             </>
           )}
         </Button>
@@ -142,6 +148,9 @@ export function SearchResults({
                   </div>
                   <h3 className="font-medium mb-2">{result.title}</h3>
                   <p className="text-sm text-muted-foreground">{result.content}</p>
+                  <div className="text-xs text-muted-foreground text-right">
+                    {result.published_date && formatDate(result.published_date)}
+                  </div>
                 </div>
               </div>
             </Card>

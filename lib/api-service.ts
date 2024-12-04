@@ -10,6 +10,7 @@ export interface SearchResult {
   url: string;
   content: string;
   domain: string;
+  published_date: string;
 }
 
 async function handleApiResponse<T>(response: Response): Promise<ApiResponse<T>> {
@@ -158,6 +159,7 @@ export async function searchTopic(topic: string, startDate?: string): Promise<Se
     
     const response = await fetch(`/api/searchRes?${params}`);
     const data = await handleApiResponse<SearchResult[]>(response);
+    console.log("data", data)
     return data.data || [];
   } catch (error) {
     console.error('Error searching topic:', error);

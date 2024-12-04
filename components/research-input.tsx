@@ -10,12 +10,16 @@ import { generateResearch, searchTopic, type SearchResult } from "@/lib/api-serv
 import { AssistedToggle } from "./research/assisted-toggle"
 import { SearchResults } from "./research/search-results"
 import { InstructionInput } from "./research/instruction-input"
+import { type ResearchOptions as OptionsType } from "@/components/research-options"
+
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Label } from "@/components/ui/label"
+import { ResearchOptions } from "./research-options"
 
 interface ResearchInputProps {
   onTopicSubmit: (topic: string) => void
@@ -42,12 +46,10 @@ interface GenerateResearchResult {
 
 export function ResearchInput({ 
   onTopicSubmit, 
-  options, 
   email,
   userId,
   topic,
-  onTopicChange,
-  onHideOptions
+  onTopicChange
 }: ResearchInputProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [isAssisted, setIsAssisted] = useState(true)
@@ -56,6 +58,10 @@ export function ResearchInput({
   const [hasStartedResearch, setHasStartedResearch] = useState(false)
   const [selectedResults, setSelectedResults] = useState<SearchResult[]>([])
   const [showSearchResults, setShowSearchResults] = useState(true)
+  const [options, setOptions] = useState<OptionsType>({
+    outline: "",
+    persona: "",
+  })
   const router = useRouter()
   const { toast } = useToast()
 
@@ -65,7 +71,6 @@ export function ResearchInput({
 
     setIsLoading(true)
     onTopicSubmit(topic.trim())
-    onHideOptions?.()
     setHasStartedResearch(true)
 
     if (isAssisted) {
@@ -167,82 +172,78 @@ export function ResearchInput({
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-center mb-8">
-        {hasStartedResearch ? `Research: ${topic}` : "What would you like to research?"}
-      </h1>
-      
-      {hasStartedResearch && isAssisted && (
-        <p className="text-center text-sm text-muted-foreground mb-4">
-          Search for more sources
-        </p>
-      )}
-
-      <div className="flex flex-col gap-4">
-        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
-          <Input
-            value={topic}
-            onChange={(e) => onTopicChange(e.target.value)}
-            placeholder="Enter a topic or market to research..."
-            className="flex-1"
-            disabled={isLoading}
-          />
-          <Button 
-            type="submit" 
-            disabled={isLoading}
-            className="w-full sm:w-auto"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <Search className="h-4 w-4 mr-2" />
-                Research
-              </>
-            )}
-          </Button>
-        </form>
-
-        {!hasStartedResearch && (
-          <AssistedToggle
-            enabled={isAssisted}
-            onToggle={setIsAssisted}
-          />
-        )}
-      </div>
-
-      {isAssisted && (
-        <>
-          {isSearching ? (
-            <div className="mt-8 text-center">
-              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-              <p>Searching for relevant content...</p>
-            </div>
-          ) : (
-            <>
-              {selectedResults.length > 0 && (
-                <div className="mt-8">
-                  <InstructionInput
-                    selectedResults={selectedResults}
-                    topic={topic}
-                    onSubmit={handleInstructionSubmit}
-                    isLoading={isLoading}
-                  />
-                </div>
-              )}
-              <SearchResults
-                results={searchResults}
-                isLoading={isSearching}
-                onProcessSelected={handleProcessSelected}
-                topic={topic}
-                showSearchResults={showSearchResults}
-              />
-            </>
+      <div className="space-y-4">
+        <div className="flex flex-col space-y-2">
+          <h1 className="text-3xl font-bold text-center mb-8">
+            {hasStartedResearch ? `Research: ${topic}` : "What would you like to research?"}
+          </h1>
+          
+          {hasStartedResearch && isAssisted && (
+            <p className="text-center text-sm text-muted-foreground mb-4">
+              Search for more sources
+            </p>
           )}
-        </>
-      )}
+
+          <div className="flex flex-col gap-4">
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
+              <Input
+                value={topic}
+                onChange={(e) => onTopicChange(e.target.value)}
+                placeholder="Enter a topic or market to research..."
+                className="flex-1"
+                disabled={isLoading}
+              />
+              <Button 
+                type="submit" 
+                disabled={isLoading}
+                className="w-full sm:w-auto"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Search className="h-4 w-4 mr-2" />
+                    Research
+                  </>
+                )}
+              </Button>
+            </form>
+
+            {!hasStartedResearch && (
+              <AssistedToggle
+                enabled={isAssisted}
+                onToggle={setIsAssisted}
+              />
+            )}
+          </div>
+        </div>
+
+        <ResearchOptions onOptionsChange={setOptions} />
+
+        <div className="flex flex-col space-y-2">
+          <Label>Selected Sources</Label>
+          {selectedResults.length > 0 && (
+            <div className="mt-8">
+              <InstructionInput
+                selectedResults={selectedResults}
+                topic={topic}
+                onSubmit={handleInstructionSubmit}
+                isLoading={isLoading}
+              />
+            </div>
+          )}
+          <SearchResults
+            results={searchResults}
+            isLoading={isSearching}
+            onProcessSelected={handleProcessSelected}
+            topic={topic}
+            showSearchResults={showSearchResults}
+          />
+        </div>
+      </div>
     </div>
   )
 }

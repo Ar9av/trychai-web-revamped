@@ -11,6 +11,7 @@ export interface ExaSearchResult {
   url: string;
   content: string;
   domain: string;
+  published_date: string;
 }
 
 export async function getCachedExaSearch(payload: ExaSearchPayload) {

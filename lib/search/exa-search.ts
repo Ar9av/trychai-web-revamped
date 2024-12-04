@@ -20,7 +20,8 @@ export async function performExaSearch(payload: ExaSearchPayload): Promise<ExaSe
       title: item.title || "",
       url: item.url || "",
       content: item.summary || "",
-      domain: new URL(item.url).hostname.replace('www.', '')
+      domain: new URL(item.url).hostname.replace('www.', ''),
+      published_date: item.publishedDate || ""
     }));
   } catch (error) {
     console.error('Error performing Exa search:', error);

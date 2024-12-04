@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { ResearchInput } from "@/components/research-input"
-import { ResearchOptions, type ResearchOptions as OptionsType } from "@/components/research-options"
+import { type ResearchOptions as OptionsType } from "@/components/research-options"
 import { SuggestedReports } from "@/components/suggested-reports"
 import { useClerk } from "@clerk/nextjs"
 
@@ -11,11 +11,6 @@ export default function DemoPage() {
   const user_email = session?.user?.emailAddresses[0].emailAddress
   const userId = session?.user?.id
   const [topic, setTopic] = useState("")
-  const [showOptions, setShowOptions] = useState(true)
-  const [options, setOptions] = useState<OptionsType>({
-    outline: "",
-    persona: "",
-  })
 
   const handleTopicSubmit = (newTopic: string) => {
     setTopic(newTopic)
@@ -30,19 +25,12 @@ export default function DemoPage() {
       <div className="max-w-4xl mx-auto">
         <ResearchInput 
           onTopicSubmit={handleTopicSubmit} 
-          options={options} 
           email={user_email || ""} 
           userId={userId || ""}
           topic={topic}
           onTopicChange={setTopic}
-          onHideOptions={() => setShowOptions(false)}
         />
-        {showOptions && (
-          <>
-            <ResearchOptions onOptionsChange={setOptions} />
-            <SuggestedReports onSelect={handleSuggestedTopicSelect} />
-          </>
-        )}
+        {/* <SuggestedReports onSelect={handleSuggestedTopicSelect} /> */}
       </div>
     </main>
   )

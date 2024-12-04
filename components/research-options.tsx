@@ -80,6 +80,49 @@ export function ResearchOptions({ onOptionsChange }: ResearchOptionsProps) {
       </div>
 
       <CollapsibleContent className="space-y-4">
+      <div>
+          <div className="flex items-center space-x-2 mb-2">
+            <Label>Published After</Label>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <InfoIcon className="h-4 w-4 text-muted-foreground" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Filter content published after this date</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !options.publishedDate && "text-muted-foreground"
+                )}
+              >
+                {options.publishedDate ? (
+                  format(options.publishedDate, "PPP")
+                ) : (
+                  <span>Pick a date</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={options.publishedDate}
+                onSelect={(date) => handleOptionChange("publishedDate", date)}
+                disabled={(date) =>
+                  date > new Date() || date < new Date("2000-01-01")
+                }
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
         <div>
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center space-x-2">
@@ -115,14 +158,14 @@ export function ResearchOptions({ onOptionsChange }: ResearchOptionsProps) {
 
         <div>
           <div className="flex items-center space-x-2 mb-2">
-            <Label htmlFor="persona">Buyer Persona</Label>
+            <Label htmlFor="persona">Persona</Label>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
                   <InfoIcon className="h-4 w-4 text-muted-foreground" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Define target audience characteristics</p>
+                  <p>Define your persona</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -136,49 +179,7 @@ export function ResearchOptions({ onOptionsChange }: ResearchOptionsProps) {
           />
         </div>
 
-        <div>
-          <div className="flex items-center space-x-2 mb-2">
-            <Label>Published Date</Label>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <InfoIcon className="h-4 w-4 text-muted-foreground" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Filter content by published date</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={cn(
-                  "w-full justify-start text-left font-normal",
-                  !options.publishedDate && "text-muted-foreground"
-                )}
-              >
-                {options.publishedDate ? (
-                  format(options.publishedDate, "PPP")
-                ) : (
-                  <span>Pick a date</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={options.publishedDate}
-                onSelect={(date) => handleOptionChange("publishedDate", date)}
-                disabled={(date) =>
-                  date > new Date() || date < new Date("2000-01-01")
-                }
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
+
       </CollapsibleContent>
     </Collapsible>
   )
