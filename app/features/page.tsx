@@ -65,7 +65,7 @@ export default function FeaturesPage() {
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold tracking-tighter mb-4">Features</h1>
         <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
-          Discover how Trychai can transform your market research with powerful AI-driven features
+          Discover how TrychAI can transform your market research with powerful AI-driven features
         </p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 py-6"/>

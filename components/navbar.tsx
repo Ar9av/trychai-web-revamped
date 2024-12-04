@@ -11,6 +11,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useTheme } from "next-themes"
 import { SelectedSourcesDropdown } from "./navbar/selected-sources-dropdown"
+import { motion } from "framer-motion"
 
 export function Navbar() {
   const { theme } = useTheme();
@@ -23,13 +24,25 @@ export function Navbar() {
           <Link href="/" className="flex items-center space-x-2">
             <Image 
               src="/favicon.ico" 
-              alt="Trychai Logo" 
+              alt="TrychAI Logo" 
               width={32} 
               height={32} 
               className={isDarkTheme ? 'invert' : undefined}
               priority
             />
-            <span className="font-bold">Trychai</span>
+            <span className="font-bold">
+            <span className="relative inline-block">
+                <motion.span
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="relative"
+                >
+                  <span className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary to-secondary transform scale-x-0 transition-transform duration-300 origin-bottom-left"></span>
+                  <span className="relative text-shadow-lg bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text">TrychAI</span>
+                </motion.span>
+              </span>
+              </span>
           </Link>
         </div>
         <div className="flex items-center space-x-4 ml-auto">

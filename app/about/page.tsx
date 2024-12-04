@@ -5,7 +5,7 @@ export default function AboutPage() {
   return (
     <div className="container py-12 md:py-24">
       <div className="max-w-3xl mx-auto text-center mb-12">
-        <h1 className="text-4xl font-bold tracking-tighter mb-4">About Trychai</h1>
+        <h1 className="text-4xl font-bold tracking-tighter mb-4">About TrychAI</h1>
         <p className="text-gray-500 dark:text-gray-400">
           We&apos;re revolutionizing market research with artificial intelligence, making it faster and more accurate than ever before.
         </p>
@@ -28,7 +28,7 @@ export default function AboutPage() {
 
       <div className="space-y-12">
         <section>
-          <h2 className="text-3xl font-bold tracking-tighter text-center mb-8">Why Choose Trychai?</h2>
+          <h2 className="text-3xl font-bold tracking-tighter text-center mb-8">Why Choose TrychAI?</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="p-6">
               <Brain className="w-12 h-12 mb-4 text-primary" />
@@ -64,7 +64,7 @@ export default function AboutPage() {
         <section className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl font-bold tracking-tighter mb-4">Our Story</h2>
           <p className="text-gray-500 dark:text-gray-400">
-            Founded in 2023, Trychai emerged from a simple idea: make market research more accessible and accurate through AI. 
+            Founded in 2023, TrychAI emerged from a simple idea: make market research more accessible and accurate through AI. 
             Today, we&apos;re proud to serve thousands of businesses worldwide, helping them make better decisions with data-driven insights.
           </p>
         </section>
