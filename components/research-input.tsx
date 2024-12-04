@@ -74,6 +74,10 @@ export function ResearchInput({
     e.preventDefault()
     if (!topic.trim()) return
 
+    if (!title) {
+      handleTitleChange(topic.trim());
+    }
+
     setIsLoading(true)
     onTopicSubmit(topic.trim())
     setHasStartedResearch(true)
@@ -179,9 +183,17 @@ export function ResearchInput({
     <div>
       <div className="space-y-4">
         <div className="flex flex-col space-y-2">
-          <h1 className="text-3xl font-bold text-center mb-8">
-            {hasStartedResearch ? `Research: ${title}` : "What would you like to research?"}
-          </h1>
+          {hasStartedResearch ? (
+            <Input
+              value={title || topic} // If title is empty, assign topic to title
+              onChange={(e) => handleTitleChange(e.target.value)}
+              className="text-3xl font-bold text-center mb-8 underline"
+            />
+          ) : (
+            <h1 className="text-3xl font-bold text-center mb-8">
+              What would you like to research?
+            </h1>
+          )}
           
           {hasStartedResearch && isAssisted && (
             <p className="text-center text-sm text-muted-foreground mb-4">
