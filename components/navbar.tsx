@@ -6,11 +6,11 @@ import { UserButton } from "@clerk/nextjs"
 import { SignedIn } from "@clerk/nextjs"
 import { SignInButton } from "@clerk/nextjs"
 import { SignedOut } from "@clerk/nextjs"
-import { Brain } from "lucide-react"
+import { Brain, FileText } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { useTheme } from "next-themes"
-
+import { SelectedSourcesDropdown } from "./navbar/selected-sources-dropdown"
 export function Navbar() {
   const { theme } = useTheme();
   const isDarkTheme = theme === "dark";
@@ -25,29 +25,21 @@ export function Navbar() {
               alt="Trychai Logo" 
               width={32} 
               height={32} 
-              className={`${isDarkTheme ? 'filter invert' : undefined}`}
-              onError={(e) => { e.currentTarget.src = '/favicon.ico'; }} // Fallback image
+              className={isDarkTheme ? 'invert' : undefined}
+              priority
             />
             <span className="font-bold">Trychai</span>
           </Link>
         </div>
         <div className="flex items-center space-x-4 ml-auto">
-          {/* <Button variant="ghost" asChild>
-            <Link href="/features">Features</Link>
-          </Button>
-          <Button variant="ghost" asChild>
-            <Link href="/pricing">Pricing</Link>
-          </Button>
-          <Button variant="ghost" asChild>
-            <Link href="/about">About</Link>
-          </Button> */}
+          <SelectedSourcesDropdown />
           <ModeToggle />
           <SignedOut>
             <SignInButton />
           </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
         </div>
       </nav>
     </header>

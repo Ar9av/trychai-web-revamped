@@ -13,6 +13,8 @@ export function storeResults(results: SearchResult[]) {
   if (typeof window === "undefined") return;
   
   localStorage.setItem(STORAGE_KEY, JSON.stringify(results));
+  localStorage.setItem('selected-sources', JSON.stringify(results))
+  window.dispatchEvent(new Event('sourcesUpdated'))
 }
 
 export function clearStoredResults() {

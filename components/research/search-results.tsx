@@ -29,11 +29,17 @@ export function SearchResults({
   const [selectedResults, setSelectedResults] = useState<SearchResult[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
 
-  // Load stored results on mount
+  // Load stored results on mount and listen for updates
   useEffect(() => {
-    const stored = getStoredResults()
-    if (stored.length > 0) {
-      setSelectedResults(stored)
+    const handleSourcesUpdate = () => {
+      setSelectedResults(getStoredResults())
+    }
+
+    setSelectedResults(getStoredResults())
+    window.addEventListener('sourcesUpdated', handleSourcesUpdate)
+
+    return () => {
+      window.removeEventListener('sourcesUpdated', handleSourcesUpdate)
     }
   }, [])
 

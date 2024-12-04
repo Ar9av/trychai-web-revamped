@@ -4,19 +4,22 @@ import { Card } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { formatDistanceToNow } from "date-fns"
 import LoadingSkeleton from "@/components/ui/loading-skeleton"
+import { Button } from "@/components/ui/button"
+import { Plus } from "lucide-react"
+import { toast } from "@/components/ui/use-toast"
+import { getStoredResults, storeResults } from "@/lib/storage-service"
+import { SearchResult } from "@/lib/api-service"
 
 interface NewsItem {
   id: number
   hashtag: string
   date: string
-  // news_json: {
   title: string
   content: string
   source?: string
   url?: string
   summary?: string
   publishedDate?: string
-  // }
 }
 
 interface NewsListProps {
@@ -25,6 +28,37 @@ interface NewsListProps {
 }
 
 export function NewsList({ news, isLoading }: NewsListProps) {
+  const handleAddToSources = (item: NewsItem) => {
+    if (!item.url) return
+
+    const newSource: SearchResult = {
+      title: item.title,
+      url: item.url,
+      content: item.summary || item.content,
+      domain: getDomainFromUrl(item.url) || ""
+    }
+
+    const currentSources = getStoredResults()
+    
+    // Check if source already exists
+    if (currentSources.some(source => source.url === newSource.url)) {
+      toast({
+        title: "Already added",
+        description: "This source is already in your selected sources",
+      })
+      return
+    }
+
+    // Add new source
+    const updatedSources = [...currentSources, newSource]
+    storeResults(updatedSources)
+
+    toast({
+      title: "Source added",
+      description: "The source has been added to your selected sources",
+    })
+  }
+
   if (isLoading) {
     return <LoadingSkeleton />
   }
@@ -44,9 +78,19 @@ export function NewsList({ news, isLoading }: NewsListProps) {
         <Card key={item.id} className="p-6">
           <div className="flex justify-between items-start mb-2">
             <h2 className="text-xl font-semibold">{item.title}</h2>
-            <div className="text-sm text-muted-foreground">
-              {item.date ? formatDistanceToNow(new Date(item.date), { addSuffix: true }) : null}
-            </div>
+            {item.url && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleAddToSources(item)}
+                title="Add to selected sources"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+          <div className="text-sm text-muted-foreground">
+            {item.date ? formatDistanceToNow(new Date(item.date), { addSuffix: true }) : null}
           </div>
           <p className="text-muted-foreground mb-4">{item.content}</p>
           {item.summary && (
