@@ -10,10 +10,15 @@ import { useClerk } from "@clerk/nextjs"
 import { fetchReport } from "@/lib/api-service"
 import {MuiMarkdown, getOverrides} from "mui-markdown"
 
+import React from "react";
+import { AnimatedTooltip } from "@/components/ui/animated-tooltip";
+
 interface Report {
   title: string
   output: string
   created_at: string
+  payload: string
+  sources: string[]
 }
 
 // Define the expected structure of the data
@@ -21,6 +26,24 @@ interface ReportData {
   title: string;
   output: string;
   created_at: string;
+  payload: string;
+  sources: string[];
+}
+
+
+function extractDomainFromUrl(url: string): string | null {
+  try {
+    const domain = new URL(url).hostname.replace('www.', '');
+    return domain;
+  } catch {
+    return null;
+  }
+}
+
+
+function extractLinksFromOutput(output: string): string[] {
+  const urlRegex = /https?:\/\/[^\s]+|http?:\/\/[^\s]+/g;
+  return output.match(urlRegex) || [];
 }
 
 export default function ResearchReportPage() {
@@ -68,18 +91,32 @@ export default function ResearchReportPage() {
   const [report, setReport] = useState<Report | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const { toast } = useToast()
+  console.log("report", report)
 
   useEffect(() => {
     const loadReport = async () => {
       try {
         if (typeof params.id !== 'string') return
         const data = await fetchReport(params.id) as ReportData
+        
         if (data) {
+          const sources = JSON.parse(JSON.parse(data.payload).outline).sources || [];
+          if (sources.length === 0) {
+            const outputSummary = JSON.parse(data.output).summary;
+            const links = extractLinksFromOutput(outputSummary);
+            const domains = links.map(link => extractDomainFromUrl(link)).filter(Boolean);
+            sources.push(...domains.map(domain => ({ title: domain, domain })));
+          }
+          
           setReport({
             title: data.title,
             output: JSON.parse(data.output).summary,
-            created_at: data.created_at
+            created_at: data.created_at,
+            payload: data.payload,
+            sources: sources
           })
+          
+          console.log("parsed payload", sources);
         }
       } catch (error) {
         console.error("Failed to fetch report:", error)
@@ -129,6 +166,15 @@ export default function ResearchReportPage() {
       <p className="text-muted-foreground mb-8">
         Generated on {new Date(report.created_at).toLocaleDateString()}
       </p>
+      <div className="flex flex-row items-center justify-start mb-4 w-full">
+        <AnimatedTooltip items={report.sources.map((source: any, index: number) => ({
+          id: index,
+          name: "",
+          designation: source.title,
+          image: `https://www.google.com/s2/favicons?sz=64&domain=${source.domain}`,
+          url: source.url
+        }))} />
+    </div>
       <Card className="p-6 prose dark:prose-invert max-w-none">
       <MuiMarkdown
           overrides={{

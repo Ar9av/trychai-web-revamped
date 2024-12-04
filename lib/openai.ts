@@ -10,8 +10,8 @@ const openai = new AzureOpenAI({
 export async function generateResearchReport(topic: string, outline: string = "", persona: string = "") {
   try {
     const outline_json = JSON.parse(outline);
-    const systemPrompt = `You are an expert market research analyst. Return the result in markdown format. Make sure to create using the data from the sources.
-    Also make sure you cite the sources in the report in markdown format.
+    const systemPrompt = `You are an expert market research analyst. Return the result in markdown format (Dont return any other text). Make sure to create using the data from the sources.
+    Also make sure you cite the sources in markdown format.
     ${outline_json.instruction ? `Instruction:\n${outline_json.instruction}` : ''}
     ${outline_json.topic ? `Topic:\n${outline_json.topic}` : ''}
     ${outline_json.sources ? `Sources:\n${JSON.stringify(outline_json.sources)}` : ''}
@@ -25,7 +25,7 @@ export async function generateResearchReport(topic: string, outline: string = ""
         },
         {
           role: "user",
-          content: `Generate a comprehensive market research report about: ${topic}`,
+          content: `Topic: ${topic}`,
         },
       ],
       temperature: 0.7,

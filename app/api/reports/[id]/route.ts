@@ -13,6 +13,7 @@ export async function GET(
       select: {
         title: true,
         output: true,
+        payload: true,
         created_at: true,
       }
     });
