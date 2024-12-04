@@ -6,7 +6,7 @@ import { UserButton } from "@clerk/nextjs"
 import { SignedIn } from "@clerk/nextjs"
 import { SignInButton } from "@clerk/nextjs"
 import { SignedOut } from "@clerk/nextjs"
-import { Brain, FileText } from "lucide-react"
+import { Brain, FileText , Coffee} from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { useTheme } from "next-themes"
@@ -22,14 +22,15 @@ export function Navbar() {
       <nav className="container mx-auto flex h-14 items-center justify-between">
         <div className="hidden md:flex">
           <Link href="/" className="flex items-center space-x-2">
-            <Image 
+            {/* <Image 
               src="/favicon.ico" 
               alt="TrychAI Logo" 
               width={32} 
               height={32} 
               className={isDarkTheme ? 'invert' : undefined}
               priority
-            />
+            /> */}
+            <Coffee className="w-6 h-6" />
             <span className="font-bold">
             <span className="relative inline-block">
                 <motion.span
