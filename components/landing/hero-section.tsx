@@ -4,20 +4,24 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { ArrowRight, Brain, Search, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { WavyBackground } from "../ui/wavy-background";
 
 export function HeroSection() {
+
   return (
-    <section className="w-full md:py-24 lg:py-32 xl:py-48 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
+    <section className="w-full md:py-12 lg:py-12 xl:py-48 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950">
       <div className="container px-4 md:px-6">
-        <div className="flex flex-col items-center space-y-4 text-center">
+      <WavyBackground className="max-w-4xl mx-auto">
+        <div className="flex flex-col items-center space-y-4 text-center py-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className="space-y-2"
           >
+            
             <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
-              AI-Powered Market Research
+              TrychAI - AI Research Assistant
               <span className="text-primary ml-2">
                 <Sparkles className="inline-block w-8 h-8 md:w-12 md:h-12" />
               </span>
@@ -79,6 +83,7 @@ export function HeroSection() {
             </div>
           </motion.div>
         </div>
+      </WavyBackground>
       </div>
     </section>
   );
