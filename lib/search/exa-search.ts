@@ -12,7 +12,8 @@ export async function performExaSearch(payload: ExaSearchPayload): Promise<ExaSe
         useAutoprompt: true,
         numResults: 20,
         summary: true,
-        ...(payload.startDate && { startPublishedDate: payload.startDate })
+        ...(payload.startDate && { startPublishedDate: payload.startDate }),
+        ...(payload.category !== "none" && { category: payload.category }),
       }
     );
 

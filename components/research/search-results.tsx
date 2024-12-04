@@ -31,7 +31,6 @@ export function SearchResults({
   topic,
   showSearchResults = true 
 }: SearchResultsProps) {
-  console.log("results", results)
   const [selectedResults, setSelectedResults] = useState<SearchResult[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
 

@@ -16,12 +16,10 @@ export async function POST(req: Request) {
     const history = await prisma.credit_history.findMany({
       where: { user_id: user_id }
     });
-    console.log("history:", history)
 
     const totalCredits = history.reduce((total, record) => {
       return total + (record.type === 'credit' ? record.value : -record.value);
     }, 0);
-    console.log("totalCredits:", totalCredits)
     if (totalCredits < REPORT_COST) {
       return NextResponse.json({ 
         error: 'Insufficient credits',

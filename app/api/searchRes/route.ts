@@ -7,6 +7,7 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const topic = searchParams.get('topic');
     const startDate = searchParams.get('startDate');
+    const category = searchParams.get('category');
 
     if (!topic) {
       return NextResponse.json(
@@ -17,9 +18,9 @@ export async function GET(req: Request) {
 
     const searchPayload = {
       topic,
-      ...(startDate && { startDate })
+      ...(startDate && { startDate }),
+      ...(category && { category })
     };
-
     // Try to get cached results first
     const cachedResults = await getCachedExaSearch(searchPayload);
     if (cachedResults) {

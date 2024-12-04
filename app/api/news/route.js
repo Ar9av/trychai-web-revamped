@@ -6,11 +6,9 @@ const prisma = new PrismaClient();
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
-  console.log("searchParams", searchParams)
   const hashtag = searchParams.get('hashtag');
   const startDate = searchParams.get('startDate');
-  console.log("startDate", startDate)
-  console.log("hashtag", hashtag)
+
   
   if (!hashtag) {
     return NextResponse.json({ error: 'Hashtag is required' }, { status: 400 });

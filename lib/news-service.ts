@@ -7,7 +7,6 @@ const exa = new Exa(process.env.NEXT_PUBLIC_EXA_API_KEY);
 export async function fetchAndStoreNews(hashtag: string, startDate: string) {
   try {
     // Check if we already have recent news for this hashtag
-    console.log("fetching news for hashtag", hashtag)
     const existingNews = await prisma.news.findFirst({
       where: {
         hashtag: `#${hashtag.toLowerCase()}`,

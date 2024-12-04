@@ -24,19 +24,44 @@ import {
 } from "@/components/ui/popover"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface ResearchOptionsProps {
   onOptionsChange: (options: ResearchOptions) => void
+  category: string
+  setCategory: (category: string) => void
+  isOpen: boolean
+  setIsOpen: (isOpen: boolean) => void
 }
 
 export interface ResearchOptions {
   outline: string
   persona: string
   publishedDate?: Date
+  category?: string
 }
 
-export function ResearchOptions({ onOptionsChange }: ResearchOptionsProps) {
-  const [isOpen, setIsOpen] = useState(false)
+const categoryOptions = {
+  "none": "All",
+  // "tweet": "Twitter",
+  "news": "News", 
+  "pdf": "PDF",
+  "research paper": "Research blog/papers"
+};
+
+export function ResearchOptions({ 
+  onOptionsChange, 
+  category, 
+  setCategory,
+  isOpen,
+  setIsOpen 
+}: ResearchOptionsProps) {
   const [options, setOptions] = useState<ResearchOptions>({
     outline: "",
     persona: "",
@@ -81,6 +106,21 @@ export function ResearchOptions({ onOptionsChange }: ResearchOptionsProps) {
 
       <CollapsibleContent className="space-y-4">
       <div>
+      <div className="flex flex-col gap-2 py-4">
+          <Label>Category</Label>
+          <Select value={category} onValueChange={setCategory}>
+            <SelectTrigger>
+              <SelectValue placeholder="All categories" />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(categoryOptions).map(([value, label]) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
           <div className="flex items-center space-x-2 mb-2">
             <Label>Published After</Label>
             <TooltipProvider>
@@ -178,7 +218,6 @@ export function ResearchOptions({ onOptionsChange }: ResearchOptionsProps) {
             className="min-h-[150px]"
           />
         </div>
-
 
       </CollapsibleContent>
     </Collapsible>

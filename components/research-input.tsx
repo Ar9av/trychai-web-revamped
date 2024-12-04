@@ -27,6 +27,7 @@ interface ResearchInputProps {
     outline: string
     persona: string
     publishedDate?: Date
+    category?: string
   }
   email: string
   userId: string
@@ -65,6 +66,7 @@ export function ResearchInput({
   })
   const router = useRouter()
   const { toast } = useToast()
+  const [optionsOpen, setOptionsOpen] = useState(false)
 
   const handleTitleChange = (newTitle: string) => {
         setTitle(newTitle)
@@ -78,6 +80,8 @@ export function ResearchInput({
       handleTitleChange(topic.trim());
     }
 
+    setOptionsOpen(false)
+
     setIsLoading(true)
     onTopicSubmit(topic.trim())
     setHasStartedResearch(true)
@@ -87,7 +91,8 @@ export function ResearchInput({
       try {
         const results = await searchTopic(
           topic.trim(), 
-          options?.publishedDate?.toISOString()
+          options?.publishedDate?.toISOString(),
+          options?.category
         )
         setSearchResults(results)
       } catch (error) {
@@ -238,7 +243,13 @@ export function ResearchInput({
           </div>
         </div>
 
-        <ResearchOptions onOptionsChange={setOptions} />
+        <ResearchOptions 
+          onOptionsChange={setOptions} 
+          category={options?.category || ""}
+          setCategory={(category) => setOptions({ ...options, category })}
+          isOpen={optionsOpen}
+          setIsOpen={setOptionsOpen}
+        />
 
         <div className="flex flex-col space-y-2">
           <Label>Selected Sources</Label>

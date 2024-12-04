@@ -30,6 +30,10 @@ export default function DemoPage() {
           topic={topic}
           onTopicChange={setTopic}
         />
+        {/* <OptionsType
+          category={category}
+          setCategory={setCategory}
+        /> */}
         {/* <SuggestedReports onSelect={handleSuggestedTopicSelect} /> */}
       </div>
     </main>

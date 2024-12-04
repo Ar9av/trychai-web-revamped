@@ -13,6 +13,12 @@ export interface SearchResult {
   published_date: string;
 }
 
+export interface SearchOptions {
+  topic: string;
+  startDate?: string;
+  category?: string;
+}
+
 async function handleApiResponse<T>(response: Response): Promise<ApiResponse<T>> {
   if (!response.ok) {
     const error = await response.json();
@@ -150,16 +156,16 @@ export async function generateResearch(topic: string, outline?: string, persona?
   }
 }
 
-export async function searchTopic(topic: string, startDate?: string): Promise<SearchResult[]> {
+export async function searchTopic(topic: string, startDate?: string, category?: string): Promise<SearchResult[]> {
   try {
     const params = new URLSearchParams({
       topic,
-      ...(startDate && { startDate })
+      ...(startDate && { startDate }),
+      ...(category && { category })
     });
     
     const response = await fetch(`/api/searchRes?${params}`);
     const data = await handleApiResponse<SearchResult[]>(response);
-    console.log("data", data)
     return data.data || [];
   } catch (error) {
     console.error('Error searching topic:', error);

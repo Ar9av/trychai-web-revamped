@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 export interface ExaSearchPayload {
   topic: string;
   startDate?: string;
+  category?: string;
 }
 
 export interface ExaSearchResult {
