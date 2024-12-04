@@ -3,7 +3,6 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Navbar } from '@/components/navbar'
-import { Footer } from '@/components/footer'
 import { Toaster } from '@/components/ui/toaster'
 import { ClerkProvider } from '@clerk/nextjs'
 const inter = Inter({ subsets: ['latin'] })
@@ -43,7 +42,6 @@ export default function RootLayout({
             <div className="min-h-screen flex flex-col">
               <Navbar />
               <main className="flex-1 w-full">{children}</main>
-              <Footer />
               <Toaster />
             </div>
           </ThemeProvider>
