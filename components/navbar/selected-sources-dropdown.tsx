@@ -36,6 +36,7 @@ export function SelectedSourcesDropdown() {
     const updatedSources = selectedSources.filter(source => source.url !== url)
     setSelectedSources(updatedSources)
     storeResults(updatedSources)
+    window.dispatchEvent(new Event('sourcesUpdated'))
   }
 
   return (

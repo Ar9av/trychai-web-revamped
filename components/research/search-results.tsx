@@ -29,36 +29,29 @@ export function SearchResults({
   const [selectedResults, setSelectedResults] = useState<SearchResult[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
 
-  // Load stored results on mount and listen for updates
+  // Load stored results on mount only
   useEffect(() => {
-    const handleSourcesUpdate = () => {
-      setSelectedResults(getStoredResults())
-    }
-
     setSelectedResults(getStoredResults())
-    window.addEventListener('sourcesUpdated', handleSourcesUpdate)
-
-    return () => {
-      window.removeEventListener('sourcesUpdated', handleSourcesUpdate)
-    }
   }, [])
-
-  // Update localStorage when selection changes
-  useEffect(() => {
-    storeResults(selectedResults)
-  }, [selectedResults])
 
   const handleSelect = (result: SearchResult) => {
     const isSelected = selectedResults.some(r => r.url === result.url)
-    if (isSelected) {
-      setSelectedResults(selectedResults.filter(r => r.url !== result.url))
-    } else {
-      setSelectedResults([...selectedResults, result])
-    }
+    const newResults = isSelected
+      ? selectedResults.filter(r => r.url !== result.url)
+      : [...selectedResults, result]
+    
+    setSelectedResults(newResults)
+    storeResults(newResults)
+    // Dispatch event after storing
+    window.dispatchEvent(new Event('sourcesUpdated'))
   }
 
   const handleRemove = (result: SearchResult) => {
-    setSelectedResults(selectedResults.filter(r => r.url !== result.url))
+    const newResults = selectedResults.filter(r => r.url !== result.url)
+    setSelectedResults(newResults)
+    storeResults(newResults)
+    // Dispatch event after storing
+    window.dispatchEvent(new Event('sourcesUpdated'))
   }
 
   const handleProcessSelected = async () => {
