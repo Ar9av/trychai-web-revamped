@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import prisma from '@/lib/prisma';
 
 const REPORT_COST = 50;
+const SEARCH_COST = 10;
 
 export async function POST(req: Request) {
   try {
@@ -20,10 +21,13 @@ export async function POST(req: Request) {
     const totalCredits = history.reduce((total, record) => {
       return total + (record.type === 'credit' ? record.value : -record.value);
     }, 0);
-    if (totalCredits < REPORT_COST) {
+
+    const requiredCredits = outline ? REPORT_COST : SEARCH_COST;
+
+    if (totalCredits < requiredCredits) {
       return NextResponse.json({ 
         error: 'Insufficient credits',
-        requiredCredits: REPORT_COST,
+        requiredCredits: requiredCredits,
         currentCredits: totalCredits
       }, { status: 400 });
     }
@@ -68,10 +72,10 @@ export async function POST(req: Request) {
       }),
       prisma.credit_history.create({
         data: {
-          user_id: user_email,
+          user_id: user_id,
           type: 'debit',
-          description: `New report: ${topic}`,
-          value: REPORT_COST
+          description: `New ${outline ? 'report' : 'search'}: ${topic}`,
+          value: requiredCredits
         }
       })
     ]);

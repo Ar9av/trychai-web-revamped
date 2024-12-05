@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Info, Loader2, Search } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
-import { generateResearch, searchTopic, type SearchResult } from "@/lib/api-service"
+import { generateResearch, searchTopic, type SearchResult, fetchUserCredits } from "@/lib/api-service"
 import { AssistedToggle } from "./research/assisted-toggle"
 import { SearchResults } from "./research/search-results"
 import { InstructionInput } from "./research/instruction-input"
@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/tooltip"
 import { Label } from "@/components/ui/label"
 import { ResearchOptions } from "./research-options"
+
+const SEARCH_COST = 10;
 
 interface ResearchInputProps {
   onTopicSubmit: (topic: string) => void
@@ -36,14 +38,12 @@ interface ResearchInputProps {
   onHideOptions?: () => void
 }
 
-// Define a type for the expected result
 interface GenerateResearchResult {
   reportId?: string;
   error?: string;
   requiredCredits?: number;
   currentCredits?: number;
 }
-
 
 export function ResearchInput({ 
   onTopicSubmit, 
@@ -60,6 +60,7 @@ export function ResearchInput({
   const [title, setTitle] = useState(topic)
   const [selectedResults, setSelectedResults] = useState<SearchResult[]>([])
   const [showSearchResults, setShowSearchResults] = useState(true)
+  const [credits, setCredits] = useState(0)
   const [options, setOptions] = useState<OptionsType>({
     outline: "",
     persona: "",
@@ -68,33 +69,66 @@ export function ResearchInput({
   const { toast } = useToast()
   const [optionsOpen, setOptionsOpen] = useState(false)
 
+  useEffect(() => {
+    if (userId) {
+      loadCredits()
+    }
+  }, [userId])
+
+  const loadCredits = async () => {
+    try {
+      const data = await fetchUserCredits(userId)
+      if (data) {
+        setCredits(data.totalCredits)
+      }
+    } catch (error) {
+      console.error('Error loading credits:', error)
+    }
+  }
+
   const handleTitleChange = (newTitle: string) => {
-        setTitle(newTitle)
+    setTitle(newTitle)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!topic.trim()) return
+    
+    if (credits < SEARCH_COST) {
+      toast({
+        title: "Insufficient Credits",
+        description: `You need ${SEARCH_COST} credits to perform a search. Current balance: ${credits} credits`,
+        variant: "destructive",
+      })
+      return
+    }
+
+    let searchTopic = topic.trim()
+    if (!searchTopic && selectedResults.length > 0) {
+      searchTopic = selectedResults[0].title
+      onTopicChange(searchTopic)
+    }
+
+    if (!searchTopic) return
 
     if (!title) {
-      handleTitleChange(topic.trim());
+      handleTitleChange(searchTopic);
     }
 
     setOptionsOpen(false)
-
     setIsLoading(true)
-    onTopicSubmit(topic.trim())
+    onTopicSubmit(searchTopic)
     setHasStartedResearch(true)
 
     if (isAssisted) {
       setIsSearching(true)
       try {
         const results = await searchTopic(
-          topic.trim(), 
+          searchTopic, 
           options?.publishedDate?.toISOString(),
           options?.category
         )
         setSearchResults(results)
+        await loadCredits() // Refresh credits after search
       } catch (error) {
         console.error("Error searching topic:", error)
         toast({
@@ -111,12 +145,12 @@ export function ResearchInput({
 
     try {
       const result = await generateResearch(
-        topic.trim(),
+        searchTopic,
         options?.outline,
         options?.persona,
         email,
         userId
-      ) as GenerateResearchResult; // Ensure the result is typed correctly
+      ) as GenerateResearchResult;
 
       if (result?.error === 'Insufficient credits') {
         toast({
@@ -150,22 +184,26 @@ export function ResearchInput({
   }
 
   const handleInstructionSubmit = async (instruction: string) => {
+    if (!topic && selectedResults.length > 0) {
+      onTopicChange(selectedResults[0].title)
+    }
+    
     setIsLoading(true)
     try {
       const payload = {
-        topic,
+        topic: topic || selectedResults[0].title,
         instruction,
         sources: selectedResults,
         persona: options?.persona
       }
 
       const result = await generateResearch(
-        topic.trim(),
+        topic || selectedResults[0].title,
         JSON.stringify(payload),
         options?.persona,
         email,
         userId
-      ) as GenerateResearchResult; // Ensure the result is typed correctly
+      ) as GenerateResearchResult;
 
       if (!result.reportId) {
         throw new Error('No report ID returned')
@@ -190,7 +228,7 @@ export function ResearchInput({
         <div className="flex flex-col space-y-2">
           {hasStartedResearch ? (
             <Input
-              value={title || topic} // If title is empty, assign topic to title
+              value={title || topic}
               onChange={(e) => handleTitleChange(e.target.value)}
               className="text-3xl font-bold text-center mb-8 underline"
             />
@@ -215,23 +253,34 @@ export function ResearchInput({
                 className="flex-1"
                 disabled={isLoading}
               />
-              <Button 
-                type="submit" 
-                disabled={isLoading}
-                className="w-full sm:w-auto"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <Search className="h-4 w-4 mr-2" />
-                    Research
-                  </>
-                )}
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Button 
+                        type="submit" 
+                        disabled={isLoading || credits < SEARCH_COST}
+                        className="w-full sm:w-auto"
+                      >
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Generating...
+                          </>
+                        ) : (
+                          <>
+                            <Search className="h-4 w-4 mr-2" />
+                            Research ({SEARCH_COST} credits)
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Current balance: {credits} credits</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </form>
 
             {!hasStartedResearch && (
