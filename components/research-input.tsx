@@ -300,26 +300,28 @@ export function ResearchInput({
           setIsOpen={setOptionsOpen}
         />
 
-        <div className="flex flex-col space-y-2">
-          <Label>Selected Sources</Label>
-          {selectedResults.length > 0 && (
-            <div className="mt-8">
-              <InstructionInput
-                selectedResults={selectedResults}
-                topic={topic}
-                onSubmit={handleInstructionSubmit}
-                isLoading={isLoading}
-              />
-            </div>
-          )}
-          <SearchResults
-            results={searchResults}
-            isLoading={isSearching}
-            onProcessSelected={handleProcessSelected}
-            topic={topic}
-            showSearchResults={showSearchResults}
-          />
-        </div>
+        {isAssisted && (
+          <div className="flex flex-col space-y-2">
+            <Label>Selected Sources</Label>
+            {selectedResults.length > 0 && (
+              <div className="mt-8">
+                <InstructionInput
+                  selectedResults={selectedResults}
+                  topic={topic}
+                  onSubmit={handleInstructionSubmit}
+                  isLoading={isLoading}
+                />
+              </div>
+            )}
+            <SearchResults
+              results={searchResults}
+              isLoading={isSearching}
+              onProcessSelected={handleProcessSelected}
+              topic={topic}
+              showSearchResults={showSearchResults}
+            />
+          </div>
+        )}
       </div>
     </div>
   )
