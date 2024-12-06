@@ -100,7 +100,8 @@ export default function ResearchReportPage() {
         const data = await fetchReport(params.id) as ReportData
         
         if (data) {
-          const sources = JSON.parse(JSON.parse(data.payload).outline).sources || [];
+          const sources = JSON.parse(JSON.parse(data.payload).outline || '{}')?.sources || [];
+          
           if (sources.length === 0) {
             const outputSummary = JSON.parse(data.output).summary;
             const links = extractLinksFromOutput(outputSummary);

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Info, Loader2, Search } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
-import { generateResearch, searchTopic, type SearchResult, fetchUserCredits } from "@/lib/api-service"
+import { generateResearch, searchTopic as searchTopicService, type SearchResult, fetchUserCredits } from "@/lib/api-service"
 import { AssistedToggle } from "./research/assisted-toggle"
 import { SearchResults } from "./research/search-results"
 import { InstructionInput } from "./research/instruction-input"
@@ -24,6 +24,7 @@ import { ResearchOptions } from "./research-options"
 const SEARCH_COST = 10;
 
 interface ResearchInputProps {
+  isAssisted?: boolean;
   onTopicSubmit: (topic: string) => void
   options?: {
     outline: string
@@ -122,7 +123,7 @@ export function ResearchInput({
     if (isAssisted) {
       setIsSearching(true)
       try {
-        const results = await searchTopic(
+        const results = await searchTopicService(
           searchTopic, 
           options?.publishedDate?.toISOString(),
           options?.category
@@ -149,9 +150,10 @@ export function ResearchInput({
         options?.outline,
         options?.persona,
         email,
-        userId
+        userId,
+        isAssisted
       ) as GenerateResearchResult;
-
+      console.log("Research generated result 1", result);
       if (result?.error === 'Insufficient credits') {
         toast({
           title: "Insufficient Credits",
@@ -160,7 +162,7 @@ export function ResearchInput({
         })
         return
       }
-
+      console.log("Research generated result 2", result);
       if (!result.reportId) {
         throw new Error('No report ID returned')
       }
@@ -202,13 +204,14 @@ export function ResearchInput({
         JSON.stringify(payload),
         options?.persona,
         email,
-        userId
+        userId,
+        isAssisted
       ) as GenerateResearchResult;
 
       if (!result.reportId) {
         throw new Error('No report ID returned')
       }
-
+      console.log("Research generated report ID", result.reportId);
       router.push(`/research/${result.reportId}`)
     } catch (error) {
       console.error("Error generating report:", error)

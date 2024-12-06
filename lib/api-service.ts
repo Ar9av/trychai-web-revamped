@@ -128,7 +128,14 @@ export async function deleteReport(userEmail: string, hash: string) {
   }
 }
 
-export async function generateResearch(topic: string, outline?: string, persona?: string, user_email?: string, user_id?: string) {
+export async function generateResearch(
+  topic: string,
+  outline?: string,
+  persona?: string,
+  user_email?: string,
+  user_id?: string,
+  isAssisted?: boolean
+) {
   try {
     const response = await fetch('/api/research', {
       method: 'POST',
@@ -136,14 +143,17 @@ export async function generateResearch(topic: string, outline?: string, persona?
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        topic: topic,
-        outline: outline,
-        persona: persona,
-        user_email: user_email,
-        user_id: user_id,
+        topic,
+        outline,
+        persona,
+        user_email,
+        user_id,
+        isAssisted
       }),
     });
+    console.log("Research generated response", response);
     const data = await handleApiResponse(response);
+    console.log("Research generated data", data.data);
     return data.data;
   } catch (error) {
     console.error('Error generating research:', error);

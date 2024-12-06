@@ -38,3 +38,24 @@ export async function generateResearchReport(topic: string, outline: string = ""
     throw error;
   }
 }
+
+export async function generateSummaryFromAzure(topic: string) {
+  try {
+    const response = await openai.chat.completions.create({
+      model: deployment || "",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert market research analyst. Return the result in markdown format (Dont return any other text). Make sure to create using the data from the sources. Topic: ${topic}`,
+        },
+      ],
+      temperature: 0.7,
+      max_tokens: 4000,
+    });
+
+    return response.choices[0].message.content;
+  } catch (error) {
+    console.error('Error generating summary:', error);
+    throw error;
+  }
+}

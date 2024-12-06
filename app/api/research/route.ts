@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { generateResearchReport } from '@/lib/openai';
+import { generateResearchReport, generateSummaryFromAzure } from '@/lib/openai';
 import crypto from 'crypto';
 import prisma from '@/lib/prisma';
 
@@ -8,7 +8,9 @@ const SEARCH_COST = 10;
 
 export async function POST(req: Request) {
   try {
-    const { topic, outline, persona, user_email, user_id } = await req.json();
+    const { topic, outline, persona, user_email, user_id, isAssisted } = await req.json();
+    const fixed_outline = outline || "";
+    const fixed_persona = persona || "";
     if (!topic) {
       return NextResponse.json({ error: 'Topic is required' }, { status: 400 });
     }
@@ -21,8 +23,10 @@ export async function POST(req: Request) {
     const totalCredits = history.reduce((total, record) => {
       return total + (record.type === 'credit' ? record.value : -record.value);
     }, 0);
-
-    const requiredCredits = outline ? REPORT_COST : SEARCH_COST;
+    console.log("Total credits", totalCredits);
+    const requiredCredits = isAssisted ? 0 : (outline ? REPORT_COST : SEARCH_COST);
+    console.log("Required credits", requiredCredits);
+    console.log("Is assisted", isAssisted);
 
     if (totalCredits < requiredCredits) {
       return NextResponse.json({ 
@@ -31,9 +35,8 @@ export async function POST(req: Request) {
         currentCredits: totalCredits
       }, { status: 400 });
     }
-
     const hash = crypto.createHash('md5')
-      .update(JSON.stringify({ topic, outline, persona }))
+      .update(JSON.stringify({ topic, fixed_outline, fixed_persona }))
       .digest('hex');
     
     const existingReport = await prisma.data_table_v2.findUnique({
@@ -46,7 +49,17 @@ export async function POST(req: Request) {
     }
 
     // Generate the research report
-    const output = await generateResearchReport(topic, outline, persona);
+    console.log("Generating report");
+    console.log("Topic", topic);
+    console.log("Outline", fixed_outline);
+    console.log("Persona", fixed_persona);
+    console.log("Is assisted", isAssisted);
+    let output = "";
+    if (!isAssisted) {
+      output = await generateSummaryFromAzure(topic) || "";
+    } else {
+      output = await generateResearchReport(topic, fixed_outline, fixed_persona) || "";
+    }
     if (!output) {
       return NextResponse.json({ error: 'Failed to generate report' }, { status: 500 });
     }
@@ -57,7 +70,7 @@ export async function POST(req: Request) {
         data: {
           md5_hash: hash,
           title: topic,
-          payload: JSON.stringify({ topic, outline, persona }),
+          payload: JSON.stringify({ topic, fixed_outline, fixed_persona }),
           output: JSON.stringify({ summary: output }),
           created_at: new Date(),
         },
@@ -79,7 +92,7 @@ export async function POST(req: Request) {
         }
       })
     ]);
-
+    console.log("Report saved", report.md5_hash);
     return NextResponse.json({ reportId: report.md5_hash });
   } catch (error) {
     console.error('Error generating research:', error);
