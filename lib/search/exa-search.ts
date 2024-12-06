@@ -10,7 +10,7 @@ export async function performExaSearch(payload: ExaSearchPayload): Promise<ExaSe
       {
         type: "auto",
         useAutoprompt: true,
-        numResults: 20,
+        numResults: payload.numResults || 20,
         summary: true,
         ...(payload.startDate && { startPublishedDate: payload.startDate }),
         ...(payload.category !== "none" && { category: payload.category }),

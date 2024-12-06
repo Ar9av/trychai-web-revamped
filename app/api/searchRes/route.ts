@@ -8,7 +8,7 @@ export async function GET(req: Request) {
     const topic = searchParams.get('topic');
     const startDate = searchParams.get('startDate');
     const category = searchParams.get('category');
-
+    const numResults = searchParams.get('numResults');
     if (!topic) {
       return NextResponse.json(
         { error: 'Topic is required' },
@@ -19,7 +19,8 @@ export async function GET(req: Request) {
     const searchPayload = {
       topic,
       ...(startDate && { startDate }),
-      ...(category && { category })
+      ...(category && { category }),
+      ...(numResults && { numResults: parseInt(numResults) })
     };
     // Try to get cached results first
     const cachedResults = await getCachedExaSearch(searchPayload);

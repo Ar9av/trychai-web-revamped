@@ -5,6 +5,7 @@ export interface ExaSearchPayload {
   topic: string;
   startDate?: string;
   category?: string;
+  numResults?: number;
 }
 
 export interface ExaSearchResult {
