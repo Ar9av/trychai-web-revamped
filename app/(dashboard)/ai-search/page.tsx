@@ -14,7 +14,7 @@ interface SearchResult {
 export default function AISearchPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [results, setResults] = useState<SearchResult[]>([])
-  const [gptAnalysis, setGptAnalysis] = useState<string>("")
+  const [gptAnalysis, setGptAnalysis] = useState<number[]>([]);
   const { toast } = useToast()
 
   const getFaviconUrl = (url: string) => {
@@ -28,7 +28,7 @@ export default function AISearchPage() {
 
   const handleSearch = async (query: string) => {
     setIsLoading(true)
-    setGptAnalysis("") // Reset GPT analysis when new search starts
+    setGptAnalysis([]); // Reset GPT analysis when new search starts
     try {
       const response = await fetch('/api/ai-search', {
         method: 'POST',
@@ -60,8 +60,9 @@ export default function AISearchPage() {
       })
 
       if (gptResponse.ok) {
-        const { analysis } = await gptResponse.json()
-        setGptAnalysis(analysis)
+        const { analysis } = await gptResponse.json();
+        console.log("Analysis --:", analysis)
+        setGptAnalysis(analysis[0]);
       }
     } catch (error) {
       toast({
@@ -95,6 +96,9 @@ export default function AISearchPage() {
                   />
                 </div>
                 <div className="flex-1 min-w-0">
+                  <span className="mr-2">
+                    {gptAnalysis.includes(index) ? '✔️' : '❌'}
+                  </span>
                   <a 
                     href={result.url}
                     target="_blank"
@@ -113,11 +117,11 @@ export default function AISearchPage() {
         </div>
 
         {/* GPT Analysis */}
-        {gptAnalysis && (
+        {gptAnalysis.analysis && (
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
             <h2 className="text-lg font-semibold mb-2">AI Analysis</h2>
             <div className="text-sm text-gray-700 whitespace-pre-wrap">
-              {gptAnalysis}
+              {gptAnalysis.analysis}
             </div>
           </div>
         )}
