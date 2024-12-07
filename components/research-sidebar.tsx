@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { 
+  Brain,
   LayoutDashboard, 
   PlusCircle, 
   Newspaper, 
@@ -66,6 +67,7 @@ export function ResearchSidebar() {
     { icon: PlusCircle, label: "New Report", href: "/demo" },
     { icon: Newspaper, label: "News Feed", href: "/news" },
     { icon: Bookmark, label: "Saved Articles", href: "/saved" },
+    { icon: Brain, label: "AI Research", href: "/ai-research" },
     { icon: CreditCard, label: "Credits", href: "/credits" },
   ]
 
