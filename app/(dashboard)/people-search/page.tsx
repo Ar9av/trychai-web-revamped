@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { findPeople } from '@/lib/people-search';
 
 interface SearchResult {
-  url: string;
+  author: string;
+  id: string;
+  image: string;
+  publishedDate: string;
+  score: number;
+  summary: string;
   title: string;
-  text: string;
-  highlights: {
-    text: string[];
-  };
+  url: string;
 }
 
 export default function PeopleSearchPage() {
@@ -24,7 +26,7 @@ export default function PeopleSearchPage() {
     setIsLoading(true);
     try {
       const searchResults = await findPeople(query);
-      setResults(searchResults);
+      setResults(searchResults.sort((a, b) => b.score - a.score));
     } catch (error) {
       console.error('Search failed:', error);
     } finally {
@@ -63,12 +65,32 @@ export default function PeopleSearchPage() {
 
       <div className="space-y-6">
         {results.map((result, index) => (
-          <div key={index} className="border rounded p-4">
-            <h2 className="text-xl font-semibold mb-2">
+          <div key={index} className="border rounded p-4 cursor-pointer" onClick={() => window.open(result.url, '_blank')}>
+            {result.image ? (
+              <img
+                src={result.image}
+                alt={result.title}
+                className="mb-2 rounded"
+                style={{ width: '100px', height: '100px' }}
+                onError={(e) => {
+                  e.currentTarget.src = '/avatar.png'; // Path to the general placeholder image
+                }}
+              />
+            ) : (
+              <img
+                src="/avatar.png" // Path to the general placeholder image
+                alt="Placeholder"
+                className="mb-2 rounded"
+                style={{ width: '100px', height: '100px' }}
+              />
+            )}
+            <p className="text-sm text-gray-500">{result.author}</p>
+            <h2 className="text-xl font-semibold mb-1">
               <a href={result.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                 {result.title}
               </a>
             </h2>
+            <p className="text-sm text-gray-500">{result.summary}</p>
             {result.highlights?.text.map((highlight, i) => (
               <p key={i} className="text-gray-600 mb-2">
                 ...{highlight}...

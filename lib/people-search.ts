@@ -60,12 +60,50 @@ async function getSearchResults(queries: string[], linksPerQuery = 10) {
     return results;
 }
 
-def 
+async function extractIndexes(text: string) {
+    // Regular expression to extract the part of the string with the indexes
+    const regex = /(\d+(?:,\s*\d+)*)/;
+  
+    // Extract indexes part from the text
+    const match = text.match(regex);
+  
+    if (match) {
+      // Split the extracted string by commas and map them to numbers
+      return match[1].split(',').map(index => parseInt(index.trim(), 10));
+    } else {
+      return [];
+    }
+  }
+  
+  
+async function filterResults(query: string, searchContents: any[]) {
+    const inputData = searchContents
+        .map((item, index) =>
+            `--START ITEM ${index}--\nURL: ${item.url}\nCONTENT: ${item.summary}\n--END ITEM--\n`,
+        )
+        .join("");
+    return await getLLMResponse({
+        system: "You are a helpful filter assistant. Filter the linkedin profile results based on the user's instructions. Just return the indexes of the results that are relevant to the user's instructions.",
+        user:
+            "Input Data:\n" +
+            `For the query: ${query}` +
+            `\n\nresults:\n${inputData}`,
+        temperature: 0,
+    });
+    
+}
+
 
 export async function findPeople(query: string) {
     const searchQueries = await generateSearchQueries(query, 2);
     console.log("searchQueries", searchQueries);
     const searchResults = await getSearchResults([query, ...searchQueries]);
     console.log("searchResult ->", searchResults);
-    return searchResults;
+    const filteredResults = await filterResults(query, searchResults);
+    console.log("filteredResults ->", filteredResults);
+    const indexes = await extractIndexes(filteredResults ?? "");
+    console.log("indexes ->", indexes);
+    const filteredSearchResults = indexes.map((index) => searchResults[index]);
+    console.log("filteredSearchResults ->", filteredSearchResults);
+    return filteredSearchResults;
 }

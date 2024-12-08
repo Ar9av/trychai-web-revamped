@@ -63,12 +63,12 @@ export function ResearchSidebar() {
   }, [userId])
 
   const menuItems = [
-    { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-    { icon: PlusCircle, label: "New Report", href: "/demo" },
-    { icon: Newspaper, label: "News Feed", href: "/news" },
-    { icon: Bookmark, label: "Saved Articles", href: "/saved" },
-    { icon: CreditCard, label: "Credits", href: "/credits" },
-    { icon: Users, label: "People Search", href: "/people-search" },
+    { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard", beta: false },
+    { icon: PlusCircle, label: "New Report", href: "/demo", beta: false },
+    { icon: Newspaper, label: "News Feed", href: "/news", beta: false },
+    { icon: Bookmark, label: "Saved Articles", href: "/saved", beta: false },
+    { icon: CreditCard, label: "Credits", href: "/credits", beta: false },
+    { icon: Users, label: "People Search", href: "/people-search", beta: true },
   ]
 
   const SidebarContent = () => (
@@ -97,25 +97,31 @@ export function ResearchSidebar() {
         {menuItems.map((item, index) => {
           const isActive = pathname === item.href
           return (
-            <Button
-              key={index}
-              variant={isActive ? "secondary" : "ghost"}
-              className={cn(
-                "w-full justify-start",
-                collapsed ? "px-2" : "px-4"
-              )}
-              asChild
-            >
-              <Link href={item.href}>
-                <item.icon className="h-5 w-5 mr-2" />
-                <span className={cn(
-                  "transition-all duration-300",
-                  collapsed ? "opacity-0 w-0" : "opacity-100"
-                )}>
-                  {item.label}
+            <div key={index} className="flex items-center">
+              <Button
+                variant={isActive ? "secondary" : "ghost"}
+                className={cn(
+                  "w-full justify-start",
+                  collapsed ? "px-2" : "px-4"
+                )}
+                asChild
+              >
+                <Link href={item.href}>
+                  <item.icon className="h-5 w-5 mr-2" />
+                  <span className={cn(
+                    "transition-all duration-300",
+                    collapsed ? "opacity-0 w-0" : "opacity-100"
+                  )}>
+                    {item.label}
+                  </span>
+                </Link>
+              </Button>
+              {item.beta && !collapsed && (
+                <span className="ml-2 bg-red-500 text-white text-xs font-semibold py-1 px-2 rounded-full">
+                  Beta
                 </span>
-              </Link>
-            </Button>
+              )}
+            </div>
           )
         })}
       </nav>
