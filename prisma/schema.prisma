@@ -94,3 +94,21 @@ model saved_articles {
   @@index([user_id])
   @@unique([user_id, url])
 }
+
+model saved_people {
+  id            Int       @id @default(autoincrement())
+  user_id       String    @db.VarChar(255)
+  author        String?
+  external_id   String?
+  image_url     String?
+  published_date DateTime?
+  score         Float?
+  summary       String?   @db.Text
+  title         String?
+  url           String?
+  tags          String?   @db.Text  // Comma-separated tags/queries
+  created_at    DateTime  @default(now())
+
+  @@index([user_id])
+  @@unique([user_id, url])
+}
