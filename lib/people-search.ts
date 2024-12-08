@@ -59,12 +59,19 @@ Please generate a list of ${n} search queries (keyword based) that would be usef
 async function getSearchResults(queries: string[], linksPerQuery = 10) {
     let results = [];
     for (const query of queries) {
-        const searchResponse = await exa.searchAndContents(query, {
-            numResults: linksPerQuery,
-            useAutoprompt: true,
-            summary: true,
-            category: "linkedin profile"
+        const response = await fetch('/api/people-search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query, linksPerQuery }),
         });
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch search results');
+        }
+        
+        const searchResponse = await response.json();
         results.push(...searchResponse.results);
     }
     return results;
@@ -123,10 +130,10 @@ export async function findPeople(query: string) {
         console.log("filteredResults ->", filteredResults);
         const indexes = await extractIndexes(filteredResults ?? "");
         console.log("indexes ->", indexes);
-        const filteredSearchResults : = indexes.map((index) => dedupedSearchResults[index]);
+        const filteredSearchResults: SearchResult[] = indexes.map((index) => dedupedSearchResults[index]).filter((result): result is SearchResult => result !== undefined);
         console.log("filteredSearchResults ->", filteredSearchResults);
         for (const result of filteredSearchResults) {
-            if (!visited_urls.includes(result.url)) {
+            if (result.url && !visited_urls.includes(result.url)) {
                 final_results.push(result);
                 visited_urls.push(result.url);
             }
