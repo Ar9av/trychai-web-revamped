@@ -23,6 +23,10 @@ import { ResearchOptions } from "./research-options"
 
 const SEARCH_COST = 10;
 
+interface UserCredits {
+  totalCredits: number;
+}
+
 interface ResearchInputProps {
   isAssisted?: boolean;
   onTopicSubmit: (topic: string) => void
@@ -78,7 +82,7 @@ export function ResearchInput({
 
   const loadCredits = async () => {
     try {
-      const data = await fetchUserCredits(userId)
+      const data = await fetchUserCredits(userId) as UserCredits;
       if (data) {
         setCredits(data.totalCredits)
       }
