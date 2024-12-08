@@ -9,7 +9,8 @@ import {
   ChevronLeft,
   Coins,
   Menu,
-  Bookmark
+  Bookmark,
+  Users
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
@@ -67,6 +68,7 @@ export function ResearchSidebar() {
     { icon: Newspaper, label: "News Feed", href: "/news" },
     { icon: Bookmark, label: "Saved Articles", href: "/saved" },
     { icon: CreditCard, label: "Credits", href: "/credits" },
+    { icon: Users, label: "People Search", href: "/people-search" },
   ]
 
   const SidebarContent = () => (
