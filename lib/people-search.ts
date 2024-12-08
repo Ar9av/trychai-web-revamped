@@ -1,6 +1,16 @@
 import Exa from 'exa-js';
 import {AzureOpenAI} from 'openai';
-import { SearchResult } from './api-service';
+
+interface SearchResult {
+    author?: string | null | undefined;
+    id?: string | null;
+    image?: string | null;
+    publishedDate?: string | null;
+    score?: number | null;
+    summary?: string | null;
+    title?: string | null;
+    url?: string | null;
+  }
 
 const deployment = process.env.NEXT_PUBLIC_AZURE_OPENAI_MODEL;
 const openai = new AzureOpenAI({

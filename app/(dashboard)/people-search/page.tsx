@@ -26,9 +26,9 @@ export default function PeopleSearchPage() {
 
     setIsLoading(true);
     try {
-      const { final_results: searchResults } = await findPeople(query);
-      // Fix the type error by filtering out undefined values
-      const validResults = searchResults.filter((result): result is SearchResult => result !== undefined);
+      const { final_results } = await findPeople(query);
+      console.log("final_results", final_results);
+      const validResults = final_results.filter((result): result is SearchResult => result !== undefined);
       setResults(validResults.sort((a, b) => ((b.score ?? 0) - (a.score ?? 0))));
     } catch (error) {
       console.error('Search failed:', error);
