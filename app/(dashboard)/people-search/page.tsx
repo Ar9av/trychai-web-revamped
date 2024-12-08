@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { findPeople } from '@/lib/people-search';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 
 interface SearchResult {
   author?: string | null | undefined;
@@ -25,8 +26,10 @@ export default function PeopleSearchPage() {
 
     setIsLoading(true);
     try {
-      const { final_results: searchResults, already_searched_queries } = await findPeople(query);
-      setResults(searchResults.sort((a, b) => (b.score ?? 0) - (a.score ?? 0)));
+      const { final_results: searchResults } = await findPeople(query);
+      // Fix the type error by filtering out undefined values
+      const validResults = searchResults.filter((result): result is SearchResult => result !== undefined);
+      setResults(validResults.sort((a, b) => ((b.score ?? 0) - (a.score ?? 0))));
     } catch (error) {
       console.error('Search failed:', error);
     } finally {
@@ -63,36 +66,50 @@ export default function PeopleSearchPage() {
         </div>
       )}
 
-      <div className="space-y-6">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {results.map((result, index) => (
-          <div key={index} className="border rounded p-4 cursor-pointer" onClick={() => window.open(result.url ?? '', '_blank')}>
-            {result.image ? (
-              <img
-                src={result.image}
-                alt={result.title ?? ''}
-                className="mb-2 rounded"
-                style={{ width: '100px', height: '100px' }}
-                onError={(e) => {
-                  e.currentTarget.src = '/avatar.png'; // Path to the general placeholder image
-                }}
-              />
-            ) : (
-              <img
-                src="/avatar.png" // Path to the general placeholder image
-                alt="Placeholder"
-                className="mb-2 rounded"
-                style={{ width: '100px', height: '100px' }}
-              />
-            )}
-            <p className="text-sm text-gray-500">{result.author}</p>
-            <h2 className="text-xl font-semibold mb-1">
-              <a href={result.url ?? ''} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                {result.title ?? ''}
-              </a>
-            </h2>
-            <p className="text-sm text-gray-500">{result.summary ?? ''}</p>
-            <p className="text-sm text-gray-500">{result.url ?? ''}</p>
-          </div>
+          <Card 
+            key={index} 
+            className="hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => window.open(result.url ?? '', '_blank')}
+          >
+            <CardHeader>
+              <div className="flex items-center gap-4">
+                {result.image ? (
+                  <img
+                    src={result.image}
+                    alt={result.title ?? ''}
+                    className="w-16 h-16 rounded-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = '/avatar.png';
+                    }}
+                  />
+                ) : (
+                  <img
+                    src="/avatar.png"
+                    alt="Placeholder"
+                    className="w-16 h-16 rounded-full object-cover"
+                  />
+                )}
+                <div>
+                  <CardTitle className="text-lg">
+                    {result.author ?? 'Untitled'}
+                  </CardTitle>
+                  {result.title && (
+                    <CardDescription className="text-sm">
+                      {result.title}
+                    </CardDescription>
+                  )}
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {result.summary && (
+                <p className="text-sm text-gray-600 mb-2">{result.summary}</p>
+              )}
+              {/* <p className="text-xs text-gray-400 truncate">{result.url}</p> */}
+            </CardContent>
+          </Card>
         ))}
       </div>
     </div>

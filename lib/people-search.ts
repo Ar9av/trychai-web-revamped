@@ -1,4 +1,3 @@
-import OpenAI from 'openai';
 import Exa from 'exa-js';
 import {AzureOpenAI} from 'openai';
 import { SearchResult } from './api-service';
@@ -98,8 +97,9 @@ async function filterResults(query: string, searchContents: any[]) {
 export async function findPeople(query: string) {
     let already_searched_queries = [];
     let final_results = [];
-    
-    while (final_results.length < 25) {
+    let loopCount = 0; // Initialize a counter for the loop
+
+    while (final_results.length < 8 && loopCount < 3) { // Add condition to stop after 3 iterations
         console.log("already_searched_queries", already_searched_queries);
         const searchQueries = await generateSearchQueries(query, 2, already_searched_queries);
         console.log("searchQueries", searchQueries);
@@ -117,6 +117,7 @@ export async function findPeople(query: string) {
         
         final_results.push(...filteredSearchResults);
         already_searched_queries.push(...searchQueries);
+        loopCount++; // Increment the loop counter
     }
     
     return { final_results, already_searched_queries };
