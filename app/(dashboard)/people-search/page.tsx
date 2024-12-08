@@ -25,7 +25,7 @@ export default function PeopleSearchPage() {
 
     setIsLoading(true);
     try {
-      const searchResults = await findPeople(query);
+      const { final_results: searchResults, already_searched_queries } = await findPeople(query);
       setResults(searchResults.sort((a, b) => (b.score ?? 0) - (a.score ?? 0)));
     } catch (error) {
       console.error('Search failed:', error);
