@@ -106,7 +106,8 @@ async function filterResults(query: string, searchContents: any[]) {
 
 export async function findPeople(query: string) {
     let already_searched_queries = [];
-    let final_results = [];
+    let final_results: SearchResult[] = [];
+    let visited_urls: string[] = [];
     let loopCount = 0; // Initialize a counter for the loop
 
     while (final_results.length < 8 && loopCount < 3) { // Add condition to stop after 3 iterations
@@ -122,10 +123,14 @@ export async function findPeople(query: string) {
         console.log("filteredResults ->", filteredResults);
         const indexes = await extractIndexes(filteredResults ?? "");
         console.log("indexes ->", indexes);
-        const filteredSearchResults = indexes.map((index) => dedupedSearchResults[index]);
+        const filteredSearchResults : = indexes.map((index) => dedupedSearchResults[index]);
         console.log("filteredSearchResults ->", filteredSearchResults);
-        
-        final_results.push(...filteredSearchResults);
+        for (const result of filteredSearchResults) {
+            if (!visited_urls.includes(result.url)) {
+                final_results.push(result);
+                visited_urls.push(result.url);
+            }
+        }
         already_searched_queries.push(...searchQueries);
         loopCount++; // Increment the loop counter
     }
