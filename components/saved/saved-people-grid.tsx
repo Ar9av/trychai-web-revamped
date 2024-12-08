@@ -97,7 +97,7 @@ export function SavedPeopleGrid({ people, isLoading, onDelete }: SavedPeopleGrid
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => window.open(person.url, '_blank')}
+                    onClick={() => person.url && window.open(person.url, '_blank')}
                   >
                     <ExternalLink className="h-4 w-4" />
                   </Button>
