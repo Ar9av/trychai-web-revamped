@@ -4,14 +4,14 @@ import { useState } from 'react';
 import { findPeople } from '@/lib/people-search';
 
 interface SearchResult {
-  author: string;
-  id: string;
-  image: string;
-  publishedDate: string;
-  score: number;
-  summary: string;
-  title: string;
-  url: string;
+  author?: string | null | undefined;
+  id?: string | null;
+  image?: string | null;
+  publishedDate?: string | null;
+  score?: number | null;
+  summary?: string | null;
+  title?: string | null;
+  url?: string | null;
 }
 
 export default function PeopleSearchPage() {
@@ -26,7 +26,7 @@ export default function PeopleSearchPage() {
     setIsLoading(true);
     try {
       const searchResults = await findPeople(query);
-      setResults(searchResults.sort((a, b) => b.score - a.score));
+      setResults(searchResults.sort((a, b) => (b.score ?? 0) - (a.score ?? 0)));
     } catch (error) {
       console.error('Search failed:', error);
     } finally {
@@ -65,11 +65,11 @@ export default function PeopleSearchPage() {
 
       <div className="space-y-6">
         {results.map((result, index) => (
-          <div key={index} className="border rounded p-4 cursor-pointer" onClick={() => window.open(result.url, '_blank')}>
+          <div key={index} className="border rounded p-4 cursor-pointer" onClick={() => window.open(result.url ?? '', '_blank')}>
             {result.image ? (
               <img
                 src={result.image}
-                alt={result.title}
+                alt={result.title ?? ''}
                 className="mb-2 rounded"
                 style={{ width: '100px', height: '100px' }}
                 onError={(e) => {
@@ -86,17 +86,12 @@ export default function PeopleSearchPage() {
             )}
             <p className="text-sm text-gray-500">{result.author}</p>
             <h2 className="text-xl font-semibold mb-1">
-              <a href={result.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                {result.title}
+              <a href={result.url ?? ''} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                {result.title ?? ''}
               </a>
             </h2>
-            <p className="text-sm text-gray-500">{result.summary}</p>
-            {result.highlights?.text.map((highlight, i) => (
-              <p key={i} className="text-gray-600 mb-2">
-                ...{highlight}...
-              </p>
-            ))}
-            <p className="text-sm text-gray-500">{result.url}</p>
+            <p className="text-sm text-gray-500">{result.summary ?? ''}</p>
+            <p className="text-sm text-gray-500">{result.url ?? ''}</p>
           </div>
         ))}
       </div>

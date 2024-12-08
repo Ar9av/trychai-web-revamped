@@ -65,10 +65,10 @@ export function ResearchSidebar() {
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard", beta: false },
     { icon: PlusCircle, label: "New Report", href: "/demo", beta: false },
+    { icon: Users, label: "People Search", href: "/people-search", beta: true },
     { icon: Newspaper, label: "News Feed", href: "/news", beta: false },
     { icon: Bookmark, label: "Saved Articles", href: "/saved", beta: false },
-    { icon: CreditCard, label: "Credits", href: "/credits", beta: false },
-    { icon: Users, label: "People Search", href: "/people-search", beta: true },
+    { icon: CreditCard, label: "Credits", href: "/credits", beta: false }
   ]
 
   const SidebarContent = () => (
