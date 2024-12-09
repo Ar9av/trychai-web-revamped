@@ -67,7 +67,7 @@ export function ResearchSidebar() {
     { icon: PlusCircle, label: "New Report", href: "/demo", beta: false },
     { icon: Users, label: "People Search", href: "/people-search", beta: true },
     { icon: Newspaper, label: "News Feed", href: "/news", beta: false },
-    { icon: Bookmark, label: "Saved Articles", href: "/saved", beta: false },
+    { icon: Bookmark, label: "Saved", href: "/saved", beta: false },
     { icon: CreditCard, label: "Credits", href: "/credits", beta: false }
   ]
 
